@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  mysql:
+  image: mysql:15
+  container_name : de0f904705cff6ca1a29271dc4ad4a54b5e48d4d4827745615330505b03620cd
+  enviroment : 
+    MYSQL_USER : root
+    MYSQL_PASSWORD : ebla123456
+    MYSQL_DB : school
+  ports: -'3306:3306'
+
+app :
+  container_name: nextjs_app
+  ports: -'3000:3000'
+  enviroment:
+  - DATABASE_URL: "mysql://root:ebla123456@localhost:3306/school"
+depends_on: -mysql
