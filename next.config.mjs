@@ -1,8 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    reactStrictMode: true,
     images: {
-        remotePatterns: [{ hostname: "images.pexels.com"}],
-    }
-};
+      domains: ['res.cloudinary.com'],
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'images.pexels.com',
+        },
+      ],
+    },
+  };
+  export default nextConfig;
 
-export default nextConfig;
+  
