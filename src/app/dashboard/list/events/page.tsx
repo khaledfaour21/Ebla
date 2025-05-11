@@ -2,12 +2,16 @@ import FormModal from "@/components/FormModal"
 import Pagination from "@/components/Pagination"
 import Table from "@/components/Table"
 import TableSearch from "@/components/TableSearch"
+import { role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
-import { currentUserId, role } from "@/lib/utils"
 import { Class, Prisma ,Event} from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
+import { currentUserId } from "../students/page"
+
+
+
 
 type EventList = Event & {class:Class}
 const columns = [

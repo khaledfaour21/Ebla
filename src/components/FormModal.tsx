@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  deleteAssignment,
   deleteClass,
   deleteExam,
   deleteParent,
@@ -29,7 +30,7 @@ const deleteActionMap = {
   parent: deleteParent,
   lesson: deleteSubject,
   exam: deleteExam,
-  assignment: deleteSubject,
+  assignment: deleteAssignment,
   result: deleteSubject,
   attendance: deleteSubject,
   event: deleteSubject,
@@ -106,7 +107,7 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  parent: (setOpen,type, data, relatedData) => (
+  parent: (setOpen, type, data, relatedData) => (
     <ParentForm
       type={type}
       data={data}
@@ -139,10 +140,24 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  //assignment: (type,data,setOpen) => <AssignmentForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  assignment: (setOpen, type, data, relatedData) => (
+    <AssignmentForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />
+  ),
   //result: (type,data,setOpen) => <ResultForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   //attendance: (type,data,setOpen) => <AttendanceForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
-  //event: (type,data,setOpen) => <EventForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  event: (setOpen, type, data, relatedData) => (
+    <EventForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />
+  ),
   //announcement: (type,data,setOpen) => <AnnouncementForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
 };
 

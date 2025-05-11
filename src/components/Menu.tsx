@@ -66,24 +66,24 @@ const menuItems = [
         href: "/dashboard/list/results",
         visible: ["admin", "teacher", "student", "parent"],
       },
-      {
-        icon: "/attendance.png",
-        label: "الحضور",
-        href: "/dashboard/list/attendance",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
+      // {
+      //   icon: "/attendance.png",
+      //   label: "الحضور",
+      //   href: "/dashboard/list/attendance",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
       {
         icon: "/calendar.png",
         label: "الأحداث",
         href: "/dashboard/list/events",
         visible: ["admin", "teacher", "student", "parent"],
       },
-      {
-        icon: "/message.png",
-        label: "الرسائل",
-        href: "/dashboard/list/messages",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
+      // {
+      //   icon: "/message.png",
+      //   label: "الرسائل",
+      //   href: "/dashboard/list/messages",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
       {
         icon: "/announcement.png",
         label: "الإعلانات",
@@ -101,12 +101,12 @@ const menuItems = [
         href: "/profile",
         visible: ["admin", "teacher", "student", "parent"],
       },
-      {
-        icon: "/setting.png",
-        label: "الإعدادات",
-        href: "/settings",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
+      // {
+      //   icon: "/setting.png",
+      //   label: "الإعدادات",
+      //   href: "/settings",
+      //   visible: ["admin", "teacher", "student", "parent"],
+      // },
       {
         icon: "/logout.png",
         label: "تسجيل الخروج",

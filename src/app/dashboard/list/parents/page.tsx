@@ -63,7 +63,7 @@ const renderRow = (item: ParentList) => (
       <div className="flex items-center gap-2 justify-start">
         {role === "admin" && (
           <>
-            <FormModal table="teacher" type="update" data={item} />
+            <FormModal table="parent" type="update" data={item} />
 
             <FormModal table="parent" type="delete" id={item.id} />
           </>
