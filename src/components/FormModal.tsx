@@ -1,9 +1,12 @@
 "use client";
 
 import {
+  deleteAnnouncement,
   deleteAssignment,
   deleteClass,
+  deleteEvent,
   deleteExam,
+  deleteLesson,
   deleteParent,
   deleteStudent,
   deleteSubject,
@@ -28,13 +31,13 @@ const deleteActionMap = {
   teacher: deleteTeacher,
   student: deleteStudent,
   parent: deleteParent,
-  lesson: deleteSubject,
+  lesson: deleteLesson,
   exam: deleteExam,
   assignment: deleteAssignment,
   result: deleteSubject,
   attendance: deleteSubject,
-  event: deleteSubject,
-  announcement: deleteSubject,
+  event: deleteEvent,
+  announcement: deleteAnnouncement,
 };
 
 const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
@@ -131,7 +134,14 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  //lesson: (type,data,setOpen) => <LessonForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  lesson: (setOpen, type, data, relatedData) => (
+    <LessonForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />
+  ),
   exam: (setOpen, type, data, relatedData) => (
     <ExamForm
       type={type}
@@ -158,7 +168,14 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  //announcement: (type,data,setOpen) => <AnnouncementForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  announcement: (setOpen, type, data, relatedData) => (
+    <AnnouncementForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />
+  ),
 };
 
 const FormModal = ({

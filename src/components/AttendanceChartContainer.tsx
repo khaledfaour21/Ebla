@@ -1,74 +1,74 @@
-import Image from "next/image"
-import AttendanceChart from "./AttendanceChart"
-import prisma from "@/lib/prisma"
+// import Image from "next/image"
+// import AttendanceChart from "./AttendanceChart"
+// import prisma from "@/lib/prisma"
 
-const AttendanceChartContainer =async () => {
+// const AttendanceChartContainer =async () => {
 
-const today = new Date()
+// const today = new Date()
 
-const dayOfWeek = today.getDay()
+// const dayOfWeek = today.getDay()
 
-const daySinceSunday = dayOfWeek === 0? 0 :dayOfWeek;
+// const daySinceSunday = dayOfWeek === 0? 0 :dayOfWeek;
 
-const lastSunday = new Date(today);
+// const lastSunday = new Date(today);
 
-lastSunday.setDate(today.getDate() - daySinceSunday);
+// lastSunday.setDate(today.getDate() - daySinceSunday);
 
-const resData = await prisma.attendance.findMany({
-    where: {
-        date:{
-            gte: lastSunday,
-        }
-    },
-    select:{
-        date : true,
-        present: true,
-    }
-})
-const daysOfWeek = ["الأحد" , "الإثنين" ,"الثلاثاء" , "الأربعاء" , "الخميس"]
-const attendanceMap: { [key: string]: {present: number ; absent: number }} = {
-    الأحد: {present:0 , absent : 0},
-    الإثنين: {present:0 , absent : 0},
-    الثلاثاء: {present:0 , absent : 0},
-    الأربعاء: {present:0 , absent : 0},
-    الخميس: {present:0 , absent : 0},
-}
+// const resData = await prisma.attendance.findMany({
+//     where: {
+//         date:{
+//             gte: lastSunday,
+//         }
+//     },
+//     select:{
+//         date : true,
+//         present: true,
+//     }
+// })
+// const daysOfWeek = ["الأحد" , "الإثنين" ,"الثلاثاء" , "الأربعاء" , "الخميس"]
+// const attendanceMap: { [key: string]: {present: number ; absent: number }} = {
+//     الأحد: {present:0 , absent : 0},
+//     الإثنين: {present:0 , absent : 0},
+//     الثلاثاء: {present:0 , absent : 0},
+//     الأربعاء: {present:0 , absent : 0},
+//     الخميس: {present:0 , absent : 0},
+// }
 
-resData.forEach((item) => {
-    const itemDate = new Date(item.date);
+// resData.forEach((item) => {
+//     const itemDate = new Date(item.date);
 
 
-    if (dayOfWeek >= 0 && dayOfWeek <= 4){
-        const dayName = daysOfWeek[dayOfWeek ];
+//     if (dayOfWeek >= 0 && dayOfWeek <= 4){
+//         const dayName = daysOfWeek[dayOfWeek ];
         
-        if (item.present) {
-            attendanceMap[dayName].present +=1;
-        }
+//         if (item.present) {
+//             attendanceMap[dayName].present +=1;
+//         }
 
-        else {
-            attendanceMap [dayName].absent += 1;
-         }
-      }
-});
+//         else {
+//             attendanceMap [dayName].absent += 1;
+//          }
+//       }
+// });
 
-const data = daysOfWeek.map((day) =>({
+// const data = daysOfWeek.map((day) =>({
 
-name: day,
-present: attendanceMap[day].present,
-absent: attendanceMap[day].absent,
+// name: day,
+// present: attendanceMap[day].present,
+// absent: attendanceMap[day].absent,
 
-}))
+// }))
 
 
-    return (
-        <div className="bg-white rounded:lg p-4 h-full ">
-                    <div className="flex justify-between items-center">
-                    <Image src="/moreDark.png" alt='' width={20} height={20}/>
-                        <h1 className='text-lg font-semibold'>الحضور</h1>
-                    </div>
-                    <AttendanceChart data={data}/>
-                    </div>
-    )
-}
+//     return (
+//         <div className="bg-white rounded:lg p-4 h-full ">
+//                     <div className="flex justify-between items-center">
+//                     <Image src="/moreDark.png" alt='' width={20} height={20}/>
+//                         <h1 className='text-lg font-semibold'>الحضور</h1>
+//                     </div>
+//                     <AttendanceChart data={data}/>
+//                     </div>
+//     )
+// }
 
-export default AttendanceChartContainer
+// export default AttendanceChartContainer

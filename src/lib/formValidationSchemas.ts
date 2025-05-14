@@ -142,11 +142,54 @@ export type ExamSchema = z.infer<typeof examSchema>;
 
 export const eventSchema = z.object({
   id: z.number().optional(),
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  startTime: z.coerce.date({ required_error: "Start time is required" }),
-  endTime: z.coerce.date({ required_error: "End time is required" }),
-  classId: z.number().optional().nullable(),
+  title: z.string().min(1, { message: "Title is required!" }),
+  description: z.string().min(1, { message: "Description is required!" }),
+  startTime: z
+    .string()
+    .min(1, { message: "Start time is required!" })
+    .transform((val) => new Date(val)),
+  endTime: z
+    .string()
+    .min(1, { message: "End time is required!" })
+    .transform((val) => new Date(val)),
+  classId: z
+    .union([z.string().min(1), z.number()])
+    .optional()
+    .transform((val) => (val ? Number(val) : undefined)),
 });
 
 export type EventSchema = z.infer<typeof eventSchema>;
+
+
+
+
+
+
+export const announcementSchema = z.object({
+  id: z.number().optional(),
+  title: z.string().min(1, { message: "Title is required!" }),
+  description: z.string().min(1, { message: "Description is required!" }),
+  date: z.string().min(1, { message: "Date is required!" }), // تأكد من وجود هذا الحقل
+  classId: z
+    .union([z.string().min(1), z.number()])
+    .optional()
+    .transform((val) => (val ? Number(val) : undefined)),
+});
+
+export type AnnouncementSchema = z.infer<typeof announcementSchema>;
+
+
+
+
+export const lessonSchema = z.object({
+  id: z.coerce.number().optional(),
+  name: z.string().min(1, { message: "اسم الحصة مطلوب!" }),
+  day: z.enum(["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]),
+  startTime: z.string().min(1, { message: "وقت البداية مطلوب!" }),
+  endTime: z.string().min(1, { message: "وقت النهاية مطلوب!" }),
+  subjectId: z.coerce.number().min(1, { message: "المادة مطلوبة!" }),
+  classId: z.coerce.number().min(1, { message: "الصف مطلوب!" }),
+  teacherId: z.coerce.string().min(1, { message: "المعلم مطلوب!" }),
+});
+
+export type LessonSchema = z.infer<typeof lessonSchema>;

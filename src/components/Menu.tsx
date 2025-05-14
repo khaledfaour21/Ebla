@@ -92,29 +92,29 @@ const menuItems = [
       },
     ],
   },
-  {
-    title: "غير ذلك",
-    items: [
-      {
-        icon: "/profile.png",
-        label: "البروفايل",
-        href: "/profile",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      // {
-      //   icon: "/setting.png",
-      //   label: "الإعدادات",
-      //   href: "/settings",
-      //   visible: ["admin", "teacher", "student", "parent"],
-      // },
-      {
-        icon: "/logout.png",
-        label: "تسجيل الخروج",
-        href: "/logout",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-    ],
-  },
+  // {
+  //   title: "غير ذلك",
+  //   items: [
+  //     {
+  //       icon: "/profile.png",
+  //       label: "البروفايل",
+  //       href: "/dashboard/student/list/[id]/page.tsx",
+  //       visible: [ "teacher", "student"],
+  //     },
+  //     // {
+  //     //   icon: "/setting.png",
+  //     //   label: "الإعدادات",
+  //     //   href: "/settings",
+  //     //   visible: ["admin", "teacher", "student", "parent"],
+  //     // },
+  //     // {
+  //     //   icon: "/logout.png",
+  //     //   label: "تسجيل الخروج",
+  //     //   href: "/logout",
+  //     //   visible: ["admin", "teacher", "student", "parent"],
+  //     // },
+  //   ],
+  // },
 ];
 
 

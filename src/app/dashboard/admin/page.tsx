@@ -1,6 +1,6 @@
 import Announcements from "@/components/Announcements"
-import AttendanceChartContainer from "@/components/AttendanceChartContainer"
 import CountChartContainer from "@/components/CountChartContainer"
+import CountChartTeachers from "@/components/CountChartTeachers"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
 import FinanceChart from "@/components/FinanceChart"
 import UserCard from "@/components/UserCard"
@@ -33,11 +33,11 @@ const AdminPage = ({searchParams}:{searchParams:{[keys:string]:string |undefined
             {/*attendance chart */}
         
          {/*count chart */}
-         <div className="w-full lg:w-1/3 h-[450px] ">
+         <div className="w-full  h-[450px] ">
          <CountChartContainer/>
          </div>
-         <div className="w-full lg:w-2/3 h-[450px] ">
-         <AttendanceChartContainer/>
+         <div className="w-full  h-[450px] ">
+        <CountChartTeachers/>
          </div>
          
          </div>

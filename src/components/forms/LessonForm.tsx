@@ -1,121 +1,180 @@
+// components/LessonForm.tsx
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { date, z } from "zod";
 import InputField from "../InputField";
-import Image from "next/image";
-
-const schema = z.object({
-    username: z.string().min(3, { message: 'username must be at least 3 characters long!' })
-    .max(20, { message: 'username must be at most 20 characters long!' }),
-    email: z.string().email({message:"Invalid email address!"}),
-    password: z.string().min(8, { message: 'password must be at least 8 characters long!' }),
-    firstName: z.string().min(1, { message: 'First name is required!' }),
-    lastName: z.string().min(1, { message: 'Last name is required!' }),
-    phone: z.string().min(1, { message: 'Phone is required!' }),
-    address: z.string().min(1, { message: 'address is required!' }),
-    bloodType: z.string().min(1, { message: 'Blood Type is required!' }),
-    birthday: z.date({ message: 'birthday is required!' }),
-    sex: z.enum(["male","female"],{message:"Sex is required"}),
-    img:z.instanceof(File,{message:"Image is required"}),
-  });
-  
-
-type Inputs = z.infer<typeof schema>;
-
-
+import { lessonSchema, LessonSchema } from "@/lib/formValidationSchemas";
+import { createLesson, updateLesson } from "@/lib/actions";
+import { useFormState } from "react-dom";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const LessonForm = ({
-    type,
-    data,
+  type,
+  data,
+  setOpen,
+  relatedData,
 }: {
-    type: "create" | "update";
-    data?: any;
+  type: "create" | "update";
+  data?: any;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  relatedData?: {
+    subjects: { id: number; name: string }[];
+    classes: { id: number; name: string }[];
+    teachers: { id: string; name: string; surname: string }[];
+  };
 }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LessonSchema>({
+    resolver: zodResolver(lessonSchema),
+  });
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
-      });
+  const [state, formAction] = useFormState(
+    type === "create" ? createLesson : updateLesson,
+    { success: false, error: false }
+  );
 
-      const onSubmit = handleSubmit(data=>{
-        console.log(data);
-    })
+  const onSubmit = handleSubmit((data) => {
+    formAction(data);
+  });
 
+  const router = useRouter();
 
-    return <form className="flex flex-col gap-8" dir="ltr" onSubmit={onSubmit}>
-        <h1 className="text-xl font-semibold">Create a new lesson</h1>
-        <span className="text-xs text-gray-400 font-medium">Authentication Information</span>
-        <div className="flex justify-between flex-wrap gap-4">
-        <InputField label="Username" name="username" 
-        defaultValue={data?.username} register={register} error={errors?.username}/>
+  useEffect(() => {
+    if (state.success) {
+      toast(`Lesson has been ${type === "create" ? "created" : "updated"}!`);
+      setOpen(false);
+      router.refresh();
+    }
+  }, [state, router, type, setOpen]);
 
-        <InputField label="Email" name="email" type="email"
-        defaultValue={data?.email} register={register} error={errors?.email}/>
+  return (
+    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+      <h1 className="text-xl font-semibold">
+        {type === "create" ? "Create a new lesson" : "Update lesson"}
+      </h1>
 
-        <InputField label="Password" name="password" type="password"
-        defaultValue={data?.password} register={register} error={errors?.password}/>
-        </div>
-
-        <span className="text-xs text-gray-400 font-medium">Personal Information</span>
-        <div className="flex justify-between flex-wrap gap-4">
-
-        <InputField label="FirstName" name="firstName" 
-        defaultValue={data?.firstName} register={register} error={errors?.firstName}/>
-
-<InputField label="LastName" name="lastName" 
-        defaultValue={data?.lastName} register={register} error={errors?.lastName}/>
-
-<InputField label="Phone" name="phone" 
-        defaultValue={data?.phone} register={register} error={errors?.phone}/>
-
-<InputField label="Address" name="address" 
-        defaultValue={data?.address} register={register} error={errors?.address}/>
-
-<InputField label="BloodType" name="bloodType" 
-        defaultValue={data?.bloodType} register={register} error={errors?.bloodType}/>
-
-<InputField label="Birthday" name="birthday" type="date"
-        defaultValue={data?.birthday} register={register} error={errors?.birthday}/>
-
-    
+      <div className="flex justify-between flex-wrap gap-4">
+        <InputField
+          label="اسم الحصة"
+          name="name"
+          defaultValue={data?.name}
+          register={register}
+          error={errors?.name}
+        />
 
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-        <label className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer">Sex</label>
-        <select className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full" {...register("sex")} defaultValue={data?.sex}>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </select>
-        {errors.sex?.message && (
-            <p className="text-xs text-red-400">{errors.sex.message.toString()}</p>
+          <label className="text-xs text-gray-500">اليوم</label>
+          <select
+            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            {...register("day")}
+            defaultValue={data?.day}
+          >
+            <option value="">اختر اليوم</option>
+            {["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].map(
+              (day) => (
+                <option value={day} key={day}>
+                  {day}
+                </option>
+              )
+            )}
+          </select>
+          {errors.day && (
+            <p className="text-xs text-red-400">{errors.day.message}</p>
+          )}
+        </div>
+
+        <InputField
+          label="وقت البداية"
+          name="startTime"
+          type="datetime-local"
+          defaultValue={data?.startTime?.toISOString().slice(0, 16)}
+          register={register}
+          error={errors?.startTime}
+        />
+
+        <InputField
+          label="وقت النهاية"
+          name="endTime"
+          type="datetime-local"
+          defaultValue={data?.endTime?.toISOString().slice(0, 16)}
+          register={register}
+          error={errors?.endTime}
+        />
+
+        {/* Dropdowns */}
+        <div className="flex flex-col gap-2 w-full md:w-1/4">
+          <label className="text-xs text-gray-500">المادة</label>
+          <select
+            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            {...register("subjectId")}
+            defaultValue={data?.subjectId}
+          >
+            <option value="">اختر المادة</option>
+            {relatedData?.subjects.map((subject) => (
+              <option value={subject.id} key={subject.id}>
+                {subject.name}
+              </option>
+            ))}
+          </select>
+          {errors.subjectId && (
+            <p className="text-xs text-red-400">{errors.subjectId.message}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2 w-full md:w-1/4">
+          <label className="text-xs text-gray-500">الصف</label>
+          <select
+            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            {...register("classId")}
+            defaultValue={data?.classId}
+          >
+            <option value="">اختر الصف</option>
+            {relatedData?.classes.map((cls) => (
+              <option value={cls.id} key={cls.id}>
+                {cls.name}
+              </option>
+            ))}
+          </select>
+          {errors.classId && (
+            <p className="text-xs text-red-400">{errors.classId.message}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2 w-full md:w-1/4">
+          <label className="text-xs text-gray-500">المعلم</label>
+          <select
+            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            {...register("teacherId")}
+            defaultValue={data?.teacherId}
+          >
+            <option value="">اختر المعلم</option>
+            {relatedData?.teachers.map((teacher) => (
+              <option value={teacher.id} key={teacher.id}>
+                {teacher.name} {teacher.surname}
+              </option>
+            ))}
+          </select>
+          {errors.teacherId && (
+            <p className="text-xs text-red-400">{errors.teacherId.message}</p>
+          )}
+        </div>
+
+        {data?.id && (
+          <input type="hidden" {...register("id")} value={data.id} />
         )}
-        </div>
+      </div>
 
-
-        <div className="flex flex-col gap-2 w-full md:w-1/4 justify-center">
-        <label className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer" htmlFor="img">
-
-            <Image src="/upload.png" alt="" width={28} height={28}/>
-            <span>Upload a photo</span>
-        </label>
-        
-        <input type="file" id="img" {...register("img")} className="hidden"></input>
-        {errors.img?.message && (
-            <p className="text-xs text-red-400">{errors.img.message.toString()}</p>
-        )}
-        </div>
-        </div>
-
-        
-        <button className="bg-blue-400 text-white p-2 rounded-md">{type==="create" ? "Create" : "Update"}</button>
-
-
-    </form>;
-
+      <button className="bg-blue-400 text-white p-2 rounded-md">
+        {type === "create" ? "Create" : "Update"}
+      </button>
+    </form>
+  );
 };
 
-export default LessonForm
+export default LessonForm;

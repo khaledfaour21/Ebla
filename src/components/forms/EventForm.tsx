@@ -5,8 +5,20 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import InputField from "../InputField";
 import { Dispatch, SetStateAction } from "react";
+import { createEvent, updateEvent } from "@/lib/actions";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
+// تعريف نوع الصف
+type SchoolClass = {
+  id: number;
+  name: string;
+  capacity: number;
+  _count: { students: number };
+};
 
 const eventSchema = z.object({
+    id: z.number().optional(),
   title: z.string().min(1, { message: "Title is required!" }),
   description: z.string().min(1, { message: "Description is required!" }),
   startTime: z.string().min(1, { message: "Start time is required!" }),
@@ -17,16 +29,20 @@ const eventSchema = z.object({
     .transform((val) => (val ? Number(val) : undefined)),
 });
 
-type EventInputs = z.infer<typeof eventSchema>;
+type EventInputs = z.infer<typeof eventSchema>; // الآن فيه id
 
 type EventFormProps = {
-  type: "create" | "update";
-  data?: Partial<EventInputs>;
-  setOpen?: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
-};
+    type: "create" | "update";
+    data?: Partial<EventInputs>; // EventInputs فيه الآن id، فخلاص يشتغل
+    setOpen?: Dispatch<SetStateAction<boolean>>;
+    relatedData?: { classes: SchoolClass[] };
+  };
 
 const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
+  // استخراج الصفوف من relatedData
+  const classes: SchoolClass[] = relatedData?.classes || [];
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -44,17 +60,28 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
     },
   });
 
-  const onSubmit = handleSubmit((formData) => {
+  const onSubmit = handleSubmit(async (formData) => {
     const payload = {
-      ...formData,
-      startTime: new Date(formData.startTime),
-      endTime: new Date(formData.endTime),
-    };
+        ...formData,
+        id: data?.id, // أضف هذا السطر
+        startTime: new Date(formData.startTime),
+        endTime: new Date(formData.endTime),
+      };
 
-    console.log(payload);
-    // إرسال البيانات إلى الـ API أو المعالجة المطلوبة
+    let result;
+    if (type === "create") {
+      result = await createEvent(null, payload);
+    } else {
+      result = await updateEvent(null, payload);
+    }
 
-    if (setOpen) setOpen(false);
+    if (result?.success) {
+      toast(`Event has been ${type === "create" ? "created" : "updated"}!`);
+      if (setOpen) setOpen(false);
+      router.refresh();
+    } else {
+      toast.error("حدث خطأ أثناء الإضافة!");
+    }
   });
 
   return (
@@ -107,14 +134,28 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
           register={register}
           error={errors.endTime}
         />
-        <InputField
-          label="Class ID"
-          name="classId"
-          type="number"
-          defaultValue={data?.classId?.toString() || ""}
-          register={register}
-          error={errors.classId}
-        />
+
+        {/* قائمة الصفوف المنسدلة */}
+        <div className="flex flex-col gap-2 w-full md:w-1/4">
+          <label className="text-xs text-gray-500">Class</label>
+          <select
+            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            {...register("classId")}
+            defaultValue={data?.classId || ""}
+          >
+            <option value="">اختر الصف</option>
+            {classes.map((classItem) => (
+              <option value={classItem.id} key={classItem.id}>
+                {classItem.name} - {classItem._count.students}/{classItem.capacity} Capacity
+              </option>
+            ))}
+          </select>
+          {errors.classId && (
+            <p className="text-xs text-red-400">
+              {errors.classId.message?.toString()}
+            </p>
+          )}
+        </div>
       </div>
 
       <button className="bg-blue-400 text-white p-2 rounded-md">

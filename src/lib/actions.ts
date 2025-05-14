@@ -6,6 +6,7 @@ import {
   ClassSchema,
   EventSchema,
   ExamSchema,
+  LessonSchema,
   ParentSchema,
   StudentSchema,
   SubjectSchema,
@@ -788,3 +789,184 @@ export const deleteEvent = async (
     return { success: false, error: true };
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const createAnnouncement = async (
+  currentState: any,
+  data: {
+    title: string;
+    description: string;
+    date: Date;
+    classId?: number;
+  }
+) => {
+  try {
+    await prisma.announcement.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        date: data.date,
+        classId: data.classId ?? undefined,
+      },
+    });
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("Create Announcement Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const updateAnnouncement = async (
+  currentState: any,
+  data: {
+    id: number;
+    title: string;
+    description: string;
+    date: Date;
+    classId?: number;
+  }
+) => {
+  if (!data.id) {
+    return { success: false, error: true, message: "Missing id for update" };
+  }
+  try {
+    await prisma.announcement.update({
+      where: { id: data.id },
+      data: {
+        title: data.title,
+        description: data.description,
+        date: data.date,
+        classId: data.classId ?? undefined,
+      },
+    });
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("Update Announcement Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+export const deleteAnnouncement = async (
+  currentState: any,
+  data: FormData
+) => {
+  const id = data.get("id");
+  if (!id || typeof id !== "string") {
+    return { success: false, error: true, message: "Invalid or missing id" };
+  }
+  const parsedId = parseInt(id, 10);
+  if (isNaN(parsedId)) {
+    return { success: false, error: true, message: "Invalid id format" };
+  }
+  try {
+    await prisma.announcement.delete({
+      where: { id: parsedId },
+    });
+    return { success: true, error: false };
+  } catch (error) {
+    console.error("Delete Announcement Error:", error);
+    return { success: false, error: true };
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const createLesson = async (
+  currentState: CurrentState,
+  data: LessonSchema
+) => {
+  try {
+    await prisma.lesson.create({
+      data: {
+        ...data,
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime),
+      },
+    });
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+export const updateLesson = async (
+  currentState: CurrentState,
+  data: LessonSchema
+) => {
+  try {
+    await prisma.lesson.update({
+      where: { id: data.id },
+      data: {
+        ...data,
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime),
+      },
+    });
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+export const deleteLesson = async (
+  currentState: CurrentState,
+  data: FormData
+) => {
+  const id = data.get("id") as string;
+  try {
+    await prisma.lesson.delete({
+      where: { id: parseInt(id) },
+    });
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+
+
+
+
