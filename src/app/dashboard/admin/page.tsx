@@ -33,17 +33,17 @@ const AdminPage = ({searchParams}:{searchParams:{[keys:string]:string |undefined
             {/*attendance chart */}
         
          {/*count chart */}
-         <div className="w-full  h-[450px] ">
+         <div className="w-full  h-[650px] ">
          <CountChartContainer/>
          </div>
-         <div className="w-full  h-[450px] ">
+         <div className="w-full  h-[650px] ">
         <CountChartTeachers/>
          </div>
          
          </div>
          {/*buttom chart */}
          <div className="w-full h-[500px]">
-            <FinanceChart/>
+            {/* <FinanceChart/> */}
          </div>
 
 

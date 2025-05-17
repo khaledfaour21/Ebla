@@ -7,6 +7,32 @@ datasource db {
   url      = env("MYSQL_URL")
 }
 
+enum UserSex {
+  MALE
+  FEMALE
+}
+
+enum Day {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+enum Term {
+  FIRST
+  SECOND
+}
+
+enum ExamType {
+  QUIZ1
+  QUIZ2
+  FINAL
+  ORAL
+  HOMEWORK
+}
+
 model Admin {
   id       String @id
   username String @unique
@@ -18,7 +44,7 @@ model Student {
   name        String
   surname     String
   email       String?      @unique
-  phone       String?      //@unique
+  phone       String? //@unique
   address     String
   img         String?
   bloodType   String
@@ -34,9 +60,9 @@ model Student {
   grade       Grade        @relation(fields: [gradeId], references: [id])
   parent      Parent       @relation(fields: [parentId], references: [id])
 
-  @@index([classId], map: "Student_classId_fkey")
-  @@index([gradeId], map: "Student_gradeId_fkey")
-  @@index([parentId], map: "Student_parentId_fkey")
+  @@index([classId])
+  @@index([gradeId])
+  @@index([parentId])
 }
 
 model Teacher {
@@ -45,7 +71,7 @@ model Teacher {
   name      String
   surname   String
   email     String?   @unique
-  phone     String?   //@unique
+  phone     String? //@unique
   address   String
   img       String?
   bloodType String
@@ -63,7 +89,7 @@ model Parent {
   name      String
   surname   String
   email     String?   @unique
-  phone     String    //@unique
+  phone     String //@unique
   address   String
   createdAt DateTime  @default(now())
   students  Student[]
@@ -89,8 +115,8 @@ model Class {
   lessons       Lesson[]
   students      Student[]
 
-  @@index([gradeId], map: "Class_gradeId_fkey")
-  @@index([supervisorId], map: "Class_supervisorId_fkey")
+  @@index([gradeId])
+  @@index([supervisorId])
 }
 
 model Subject {
@@ -115,10 +141,11 @@ model Lesson {
   class       Class        @relation(fields: [classId], references: [id])
   subject     Subject      @relation(fields: [subjectId], references: [id])
   teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  results     Result[]
 
-  @@index([classId], map: "Lesson_classId_fkey")
-  @@index([subjectId], map: "Lesson_subjectId_fkey")
-  @@index([teacherId], map: "Lesson_teacherId_fkey")
+  @@index([classId])
+  @@index([subjectId])
+  @@index([teacherId])
 }
 
 model Exam {
@@ -130,7 +157,7 @@ model Exam {
   lesson    Lesson   @relation(fields: [lessonId], references: [id])
   results   Result[]
 
-  @@index([lessonId], map: "Exam_lessonId_fkey")
+  @@index([lessonId])
 }
 
 model Assignment {
@@ -142,22 +169,37 @@ model Assignment {
   lesson    Lesson   @relation(fields: [lessonId], references: [id])
   results   Result[]
 
-  @@index([lessonId], map: "Assignment_lessonId_fkey")
+  @@index([lessonId])
 }
 
 model Result {
-  id           Int         @id @default(autoincrement())
-  score        Int
+  id   Int     @id @default(autoincrement())
+  term Term?
+  note String?
+
+  // الحقول الجديدة (علامات مرنة - نصية)
+  quiz1    String?
+  quiz2    String?
+  homework String?
+  oral     String?
+  final    String?
+  total    String?
+
+  // العلاقات
+  studentId String
+  lessonId  Int?
+
+  student Student @relation(fields: [studentId], references: [id])
+  lesson  Lesson? @relation(fields: [lessonId], references: [id])
+
+  // غير مستخدمين حاليًا، بس تركتهم إذا بتحتاج assignment/exam بالمستقبل
   examId       Int?
   assignmentId Int?
-  studentId    String
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
   exam         Exam?       @relation(fields: [examId], references: [id])
-  student      Student     @relation(fields: [studentId], references: [id])
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
 
-  @@index([assignmentId], map: "Result_assignmentId_fkey")
-  @@index([examId], map: "Result_examId_fkey")
-  @@index([studentId], map: "Result_studentId_fkey")
+  @@index([studentId])
+  @@index([lessonId])
 }
 
 model Attendance {
@@ -169,8 +211,8 @@ model Attendance {
   lesson    Lesson   @relation(fields: [lessonId], references: [id])
   student   Student  @relation(fields: [studentId], references: [id])
 
-  @@index([lessonId], map: "Attendance_lessonId_fkey")
-  @@index([studentId], map: "Attendance_studentId_fkey")
+  @@index([lessonId])
+  @@index([studentId])
 }
 
 model Event {
@@ -182,7 +224,7 @@ model Event {
   classId     Int?
   class       Class?   @relation(fields: [classId], references: [id])
 
-  @@index([classId], map: "Event_classId_fkey")
+  @@index([classId])
 }
 
 model Announcement {
@@ -193,18 +235,5 @@ model Announcement {
   classId     Int?
   class       Class?   @relation(fields: [classId], references: [id])
 
-  @@index([classId], map: "Announcement_classId_fkey")
-}
-
-enum UserSex {
-  MALE
-  FEMALE
-}
-
-enum Day {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
+  @@index([classId])
 }

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import FormModal from "./FormModal";
 import { auth } from "@clerk/nextjs/server";
+import ResultForm from "./forms/ResultForm";
 
 export type FormContainerProps = {
   table:
@@ -124,7 +125,19 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
   break;
 
 
-  
+  case "result":
+  const resultStudents = await prisma.student.findMany()
+  const resultLessons = await prisma.lesson.findMany({
+    include: {
+      subject: true,
+      teacher: true,
+    },
+  });
+  relatedData = {
+    students: resultStudents,
+    lessons: resultLessons,
+  };
+  break;
 
       default:
         break;

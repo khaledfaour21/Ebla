@@ -8,6 +8,7 @@ import {
   ExamSchema,
   LessonSchema,
   ParentSchema,
+  ResultSchema,
   StudentSchema,
   SubjectSchema,
   TeacherSchema,
@@ -970,3 +971,90 @@ export const deleteLesson = async (
 
 
 
+
+
+
+
+
+
+
+type currentState = { success: boolean; error: boolean }
+
+export const createResult = async (
+  currentState: CurrentState,
+  data: ResultSchema
+) => {
+  try {
+    await prisma.result.create({
+      data: {
+        studentId: data.studentId,
+        lessonId: data.lessonId,
+        term: data.term,
+        quiz1: data.quiz1,
+        quiz2: data.quiz2,
+        oral: data.oral,
+        homework: data.homework,
+        final:data.final,
+        total: data.total,
+        note: data.note ?? "",
+      },
+    })
+    revalidatePath("/dashboard/list/results")
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err)
+    return { success: false, error: true }
+  }
+}
+
+export const updateResult = async (
+  currentState: CurrentState,
+  data: ResultSchema
+) => {
+  if (!data.id) return { success: false, error: true }
+  try {
+    await prisma.result.update({
+      where: { id: data.id },
+      data: {
+        studentId: data.studentId,
+        lessonId: data.lessonId,
+        term: data.term,
+        quiz1: data.quiz1,
+        quiz2: data.quiz2,
+        oral: data.oral,
+        homework: data.homework,
+        final:data.final,
+        total: data.total,
+        note: data.note ?? "",
+      },
+    })
+    revalidatePath("/dashboard/list/results")
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err)
+    return { success: false, error: true }
+  }
+}
+
+
+export const deleteResult = async (
+  currentState: { success: boolean; error: boolean },
+  data: FormData
+) => {
+  const id = data.get("id");
+  if (!id || typeof id !== "string") {
+    return { success: false, error: true };
+  }
+
+  try {
+    await prisma.result.delete({
+      where: { id: parseInt(id, 10) },
+    });
+
+    revalidatePath("/dashboard/list/results");
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
