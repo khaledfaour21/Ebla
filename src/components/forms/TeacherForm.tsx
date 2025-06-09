@@ -74,7 +74,7 @@ const TeacherForm = ({
       </span>
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Username"
+          label="اسم المستخدم"
           name="username"
           defaultValue={data?.username}
           register={register}
@@ -82,7 +82,7 @@ const TeacherForm = ({
         />
 
         <InputField
-          label="Email"
+          label="البريد الإلكتروني"
           name="email"
           type="email"
           defaultValue={data?.email}
@@ -91,7 +91,7 @@ const TeacherForm = ({
         />
 
         <InputField
-          label="Password"
+          label="كلمة المرور"
           name="password"
           type="password"
           defaultValue={data?.password}
@@ -121,7 +121,7 @@ const TeacherForm = ({
         />
 
         <InputField
-          label="Phone"
+          label="رقم الهاتف"
           name="phone"
           defaultValue={data?.phone}
           register={register}
@@ -129,7 +129,7 @@ const TeacherForm = ({
         />
 
         <InputField
-          label="Address"
+          label="العنوان"
           name="address"
           defaultValue={data?.address}
           register={register}
@@ -137,7 +137,7 @@ const TeacherForm = ({
         />
 
         <InputField
-          label="BloodType"
+          label="زمرة الدم"
           name="bloodType"
           defaultValue={data?.bloodType}
           register={register}
@@ -145,7 +145,7 @@ const TeacherForm = ({
         />
 
         <InputField
-          label="Birthday"
+          label="تاريخ الميلاد"
           name="birthday"
           type="date"
           defaultValue={
@@ -233,7 +233,7 @@ const TeacherForm = ({
       {state.error && <span className="text-red-500">حدث خطأ !</span>}
 
       <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+        {type === "create" ? "إضافة" : "تحديث"}
       </button>
     </form>
   );

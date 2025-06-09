@@ -14,7 +14,7 @@ export type FormContainerProps = {
     | "exam"
     | "assignment"
     | "result"
-    | "attendance"
+    | "library"
     | "event"
     | "announcement";
   type: "create" | "update" | "delete";
@@ -138,6 +138,11 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
     lessons: resultLessons,
   };
   break;
+
+  case "library":
+    relatedData = {};
+    break;
+    
 
       default:
         break;

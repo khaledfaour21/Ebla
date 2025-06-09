@@ -7,6 +7,7 @@ import {
   EventSchema,
   ExamSchema,
   LessonSchema,
+  LibrarySchema,
   ParentSchema,
   ResultSchema,
   StudentSchema,
@@ -1058,3 +1059,57 @@ export const deleteResult = async (
     return { success: false, error: true };
   }
 };
+
+
+
+
+
+export const createLibrary = async (
+  currentState: { success: boolean; error: boolean },
+  data: LibrarySchema
+) => {
+  try {
+    await prisma.library.create({ data })
+    revalidatePath("/dashboard/list/library")
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err)
+    return { success: false, error: true }
+  }
+}
+
+export const updateLibrary = async (
+  currentState: { success: boolean; error: boolean },
+  data: LibrarySchema & { id: number }
+) => {
+  try {
+    await prisma.library.update({
+      where: { id: data.id },
+      data,
+    })
+    revalidatePath("/dashboard/list/library")
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err)
+    return { success: false, error: true }
+  }
+}
+
+export const deleteLibrary = async (
+  currentState: { success: boolean; error: boolean },
+  formData: FormData
+) => {
+  const id = formData.get("id")
+  if (!id || typeof id !== "string") return { success: false, error: true }
+
+  try {
+    await prisma.library.delete({
+      where: { id: parseInt(id) },
+    })
+    revalidatePath("/dashboard/list/library")
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err)
+    return { success: false, error: true }
+  }
+}

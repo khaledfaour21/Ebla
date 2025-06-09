@@ -38,42 +38,40 @@ const SingleStudentPage = async ({
       {/*right */}
       <div className="w-full xl:w-1/3 flex flex-col gap-4">
         <div className="bg-white p-4 rounded-md text-right" dir="rtl">
-          <h1 className="text-xl font-semibold">Shortcuts</h1>
+          <h1 className="text-xl font-semibold">الإختصارات</h1>
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
             <Link
               className="p-3 rounded-md bg-SkyLight "
               href={`/dashboard/list/lessons?classId=${2}`}
             >
-              Student&apos;s Lessons
+              دروس الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-PurpleLight "
               href={`/dashboard/list/teachers?classId=${2}`}
             >
-              Student&apos;s Teachers
+              اساتذة الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-YellowLight "
               href={`/dashboard/list/results?studentId=${"student2"}`}
             >
-              Student&apos;s Results
+              نتائج الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-pink-50 "
               href={`/dashboard/list/exams?classId=${2}`}
             >
-              Student&apos;s Exams
+              إمتحانات الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-SkyLight "
               href={`/dashboard/list/assignnments?classId=${2}`}
             >
-              Student&apos;s Assignments
+              واجبات الطالب
             </Link>
           </div>
         </div>
-        <Performance />
-        <Announcements />
       </div>
       {/*left */}
       <div className="w-full xl:w-2/3">
@@ -131,18 +129,7 @@ const SingleStudentPage = async ({
           {/*small card */}
           <div className="flex-1 flex gap-4 justify-between flex-wrap ">
             {/*card */}
-            <div className="bg-white p-4 rounded-md flex flex-col items-center justify-center text-center gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleAttendance.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <Suspense fallback="loading...">
-                <StudentAttendanceCard id={student.id} />
-              </Suspense>
-            </div>
+            
             {/*card */}
             <div className="bg-white p-4 rounded-md flex flex-col items-center justify-center text-center gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
               <Image
@@ -156,7 +143,7 @@ const SingleStudentPage = async ({
                 <h1 className="text-xl font-semibold">
                   {student.class.name.charAt(0)}
                 </h1>
-                <span className="text-sm text-gray-400">Grades</span>
+                <span className="text-sm text-gray-400">الصف</span>
               </div>
             </div>
             {/*card */}
@@ -172,7 +159,7 @@ const SingleStudentPage = async ({
                 <h1 className="text-xl font-semibold">
                   {student.class._count.lessons}
                 </h1>
-                <span className="text-sm text-gray-400">Lessons</span>
+                <span className="text-sm text-gray-400">الدروس</span>
               </div>
             </div>
             {/*card */}
@@ -186,14 +173,14 @@ const SingleStudentPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">{student.class.name}</h1>
-                <span className="text-sm text-gray-400">Class</span>
+                <span className="text-sm text-gray-400">الحصص الدراسية</span>
               </div>
             </div>
           </div>
         </div>
         {/*bottom */}
         <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-          <h1>Student&apos;s Schedule</h1>
+          <h1>جدول حصص الطالب</h1>
           <BigCalendarContainer type="classId" id={student.class.id} />
         </div>
       </div>

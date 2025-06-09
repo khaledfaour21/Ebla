@@ -12,6 +12,7 @@ import {
   deleteSubject,
   deleteTeacher,
   deleteResult,
+  deleteLibrary,
 } from "@/lib/actions";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -25,6 +26,7 @@ import {
 } from "react";
 import { toast } from "react-toastify";
 import { FormContainerProps } from "./FormContainer";
+import LibraryForm from "./forms/LibraryForm";
 
 const deleteActionMap = {
   subject: deleteSubject,
@@ -36,7 +38,7 @@ const deleteActionMap = {
   exam: deleteExam,
   assignment: deleteAssignment,
   result: deleteResult,
-  attendance: deleteSubject,
+  library: deleteLibrary,
   event: deleteEvent,
   announcement: deleteAnnouncement,
 };
@@ -167,7 +169,14 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  //attendance: (type,data,setOpen) => <AttendanceForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  library: (setOpen, type, data, relatedData) => (
+    <LibraryForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />
+  ),
   event: (setOpen, type, data, relatedData) => (
     <EventForm
       type={type}
@@ -245,7 +254,7 @@ const FormModal = ({
           <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:[40%]">
             <Form />
             <div
-              className="absolute top-4 right-4 cursor-pointer"
+              className="absolute top-4 left-4 cursor-pointer "
               onClick={() => setOpen(false)}
             >
               <Image src="/close.png" alt="" width={14} height={14} />

@@ -58,7 +58,7 @@ const ExamForm = ({
 
   useEffect(() => {
     if (state.success) {
-      toast(`Exam has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`الإمتحان تمّ ${type === "create" ? "إضافته" : "تعديله"}!`);
       setOpen(false);
       router.refresh();
     }
@@ -69,19 +69,19 @@ const ExamForm = ({
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new exam" : "Update the exam"}
+        {type === "create" ? "انشاء امتحان جديد" : "تعديل امتحان قديم"}
       </h1>
 
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Exam title"
+          label="عنوان الامتحان"
           name="title"
           defaultValue={data?.title}
           register={register}
           error={errors?.title}
         />
         <InputField
-          label="Start Date"
+          label="تاريخ ووقت الوقت البداية"
           name="startTime"
           defaultValue={data?.startTime}
           register={register}
@@ -89,7 +89,7 @@ const ExamForm = ({
           type="datetime-local"
         />
         <InputField
-          label="End Date"
+          label="تاريخ ووقت النهاية"
           name="endTime"
           defaultValue={data?.endTime}
           register={register}
@@ -98,7 +98,7 @@ const ExamForm = ({
         />
         {data && (
           <InputField
-            label="Id"
+            label="رقم"
             name="id"
             defaultValue={data?.id}
             register={register}
@@ -107,7 +107,7 @@ const ExamForm = ({
           />
         )}
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Lesson</label>
+          <label className="text-xs text-gray-500">الدرس</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
             {...register("lessonId")}
@@ -127,10 +127,10 @@ const ExamForm = ({
         </div>
       </div>
       {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
+        <span className="text-red-500">حدث خطأ !</span>
       )}
       <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+        {type === "create" ? "إضافة" : "تحديث"}
       </button>
     </form>
   );

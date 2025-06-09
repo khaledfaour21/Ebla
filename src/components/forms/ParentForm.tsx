@@ -46,7 +46,7 @@ const ParentForm = ({
 
   useEffect(() => {
     if (state.success) {
-      toast(`Parent has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`ولي الأمر تمّ ${type === "create" ? "إضافته" : "تعديله"}!`);
       setOpen(false);
       router.refresh();
     }
@@ -59,29 +59,29 @@ const ParentForm = ({
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new parent" : "Update the parent"}
+        {type === "create" ? "انشاء ولي أمر " : "تعديل ولي الأمر"}
       </h1>
 
       <span className="text-xs text-gray-400 font-medium">
-        Authentication Information
+       معلومات المصادقة
       </span>
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Username"
+          label="اسم المستخدم"
           name="username"
           register={register}
           error={errors.username}
           defaultValue={data?.username}
         />
         <InputField
-          label="Email"
+          label="البريد الإلكتروني"
           name="email"
           register={register}
           error={errors.email}
           defaultValue={data?.email}
         />
         <InputField
-          label="Password"
+          label="كلمة المرور"
           name="password"
           type="password"
           register={register}
@@ -91,32 +91,32 @@ const ParentForm = ({
       </div>
 
       <span className="text-xs text-gray-400 font-medium">
-        Personal Information
+        المعلومات الشخصية
       </span>
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="First Name"
+          label="الاسم الأول"
           name="name"
           register={register}
           error={errors.name}
           defaultValue={data?.name}
         />
         <InputField
-          label="Last Name"
+          label="الاسم الأخير"
           name="surname"
           register={register}
           error={errors.surname}
           defaultValue={data?.surname}
         />
         <InputField
-          label="Phone"
+          label="رقم الهاتف"
           name="phone"
           register={register}
           error={errors.phone}
           defaultValue={data?.phone}
         />
         <InputField
-          label="Address"
+          label="العنوان"
           name="address"
           register={register}
           error={errors.address}
@@ -126,7 +126,7 @@ const ParentForm = ({
 
       {data && (
         <InputField
-          label="Id"
+          label="الرقم"
           name="id"
           register={register}
           error={errors.id}
@@ -136,11 +136,11 @@ const ParentForm = ({
       )}
 
       {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
+        <span className="text-red-500">حدث خطأ !</span>
       )}
 
       <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+        {type === "create" ? "إضافة" : "تحديث"}
       </button>
     </form>
   );

@@ -237,3 +237,13 @@ model Announcement {
 
   @@index([classId])
 }
+
+model Library {
+  id          Int      @id @default(autoincrement())
+  title       String
+  grade       String
+  link        String
+  description String
+  image       String?
+  createdAt   DateTime @default(now())
+}

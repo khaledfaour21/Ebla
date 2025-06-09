@@ -9,7 +9,6 @@ import Link from "next/link";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { auth } from "@clerk/nextjs/server";
 
-
 type TeacherList = Teacher & { subjects: Subject[] } & { classes: Class[] };
 
 const TeacherListPage = async ({
@@ -21,38 +20,38 @@ const TeacherListPage = async ({
   const role = (sessionClaims?.metadata as { role?: string })?.role;
   const columns = [
     {
-      header: "Info",
+      header: "المعلومات",
       accessor: "info",
     },
     {
-      header: "Teacher ID",
+      header: "رقم المدرس",
       accessor: "teacherId",
       className: "hidden md:table-cell",
     },
     {
-      header: "Subjects",
+      header: "المواد",
       accessor: "subjects",
       className: "hidden md:table-cell",
     },
     {
-      header: "Classes",
+      header: "الحصص",
       accessor: "classes",
       className: "hidden md:table-cell",
     },
     {
-      header: "Phone",
+      header: "رقم الهاتف",
       accessor: "phone",
       className: "hidden lg:table-cell",
     },
     {
-      header: "Address",
+      header: "العنوان",
       accessor: "address",
       className: "hidden lg:table-cell",
     },
     ...(role === "admin"
       ? [
           {
-            header: "Actions",
+            header: "النشاط",
             accessor: "action",
           },
         ]
@@ -89,7 +88,7 @@ const TeacherListPage = async ({
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/dashboard/list/teachers/${item.id}`}>
-            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
+            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-Sky">
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
           </Link>
@@ -128,7 +127,6 @@ const TeacherListPage = async ({
           default:
             break;
         }
-        
       }
     }
   }
@@ -147,24 +145,29 @@ const TeacherListPage = async ({
   ]);
 
   return (
-    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      {/* TOP */}
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Teachers</h1>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0" dir="rtl">
+      {/* top*/}
+      <div className="flex flex-row-reverse items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center gap-4  w-full md:w-auto justify-start">
           <TableSearch />
-          <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+          <div className="flex items-center gap-4 ">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
               <Image src="/filter.png" alt="" width={14} height={14} />
             </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {role === "admin" && (
+              /* <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
+                            <Image src="/plus.png" alt="" width={14} height={14}/>
+                        </button> */
               <FormContainer table="teacher" type="create" />
             )}
           </div>
         </div>
+        <h1 className="hidden md:block text-lg font-semibold text-right">
+          كل الاساتذة
+        </h1>
       </div>
       {/* LIST */}
       <Table columns={columns} renderRow={renderRow} data={data} />

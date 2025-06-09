@@ -9,7 +9,6 @@ import { createEvent, updateEvent } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-// تعريف نوع الصف
 type SchoolClass = {
   id: number;
   name: string;
@@ -29,17 +28,16 @@ const eventSchema = z.object({
     .transform((val) => (val ? Number(val) : undefined)),
 });
 
-type EventInputs = z.infer<typeof eventSchema>; // الآن فيه id
+type EventInputs = z.infer<typeof eventSchema>; 
 
 type EventFormProps = {
     type: "create" | "update";
-    data?: Partial<EventInputs>; // EventInputs فيه الآن id، فخلاص يشتغل
+    data?: Partial<EventInputs>; 
     setOpen?: Dispatch<SetStateAction<boolean>>;
     relatedData?: { classes: SchoolClass[] };
   };
 
 const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
-  // استخراج الصفوف من relatedData
   const classes: SchoolClass[] = relatedData?.classes || [];
   const router = useRouter();
 
@@ -63,7 +61,7 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
   const onSubmit = handleSubmit(async (formData) => {
     const payload = {
         ...formData,
-        id: data?.id, // أضف هذا السطر
+        id: data?.id, 
         startTime: new Date(formData.startTime),
         endTime: new Date(formData.endTime),
       };
@@ -76,7 +74,7 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
     }
 
     if (result?.success) {
-      toast(`Event has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`الحدث تمّ ${type === "create" ? "إضافته" : "تعديله"}!`);
       if (setOpen) setOpen(false);
       router.refresh();
     } else {
@@ -87,31 +85,31 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
   return (
     <form
       className="flex flex-col gap-8"
-      dir="ltr"
+      dir="rtl"
       onSubmit={onSubmit}
       noValidate
     >
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new event" : "Update event"}
+        {type === "create" ? "إضافة حدث جديد" : "تعديل حدث قديم"}
       </h1>
 
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Title"
+          label="عنوان الحدث"
           name="title"
           defaultValue={data?.title}
           register={register}
           error={errors.title}
         />
         <InputField
-          label="Description"
+          label="الوصف"
           name="description"
           defaultValue={data?.description}
           register={register}
           error={errors.description}
         />
         <InputField
-          label="Start Time"
+          label="تاريخ ووقت البداية"
           name="startTime"
           type="datetime-local"
           defaultValue={
@@ -123,7 +121,7 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
           error={errors.startTime}
         />
         <InputField
-          label="End Time"
+          label="تاريخ ووقت النهاية"
           name="endTime"
           type="datetime-local"
           defaultValue={
@@ -137,7 +135,7 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
 
         {/* قائمة الصفوف المنسدلة */}
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Class</label>
+          <label className="text-xs text-gray-500">الصف</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
             {...register("classId")}
@@ -146,7 +144,7 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
             <option value="">اختر الصف</option>
             {classes.map((classItem) => (
               <option value={classItem.id} key={classItem.id}>
-                {classItem.name} - {classItem._count.students}/{classItem.capacity} Capacity
+                {classItem.name} - {classItem._count.students}/{classItem.capacity} السعة
               </option>
             ))}
           </select>
@@ -159,7 +157,7 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
       </div>
 
       <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+        {type === "create" ? "إضافة" : "تحديث"}
       </button>
     </form>
   );

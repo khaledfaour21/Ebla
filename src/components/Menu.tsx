@@ -66,12 +66,12 @@ const menuItems = [
         href: "/dashboard/list/results",
         visible: ["admin", "teacher", "student", "parent"],
       },
-      // {
-      //   icon: "/attendance.png",
-      //   label: "الحضور",
-      //   href: "/dashboard/list/attendance",
-      //   visible: ["admin", "teacher", "student", "parent"],
-      // },
+       {
+         icon: "/library.png",
+         label: "المكتبة",
+         href: "/dashboard/list/library",
+         visible: ["admin", "teacher", "student", "parent"],
+       },
       {
         icon: "/calendar.png",
         label: "الأحداث",

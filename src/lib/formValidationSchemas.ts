@@ -211,3 +211,15 @@ export const resultSchema = z.object({
   note: z.string().optional(),
 })
 export type ResultSchema = z.infer<typeof resultSchema>
+
+
+
+export const librarySchema = z.object({
+  title: z.string().min(1, "الاسم مطلوب"),
+  grade: z.string().min(1, "السنة الدراسية مطلوبة"),
+  link: z.string().url("يجب أن يكون رابط صحيح"),
+  description: z.string().min(1, "الوصف مطلوب"),
+  image: z.string().optional(),
+})
+
+export type LibrarySchema = z.infer<typeof librarySchema>

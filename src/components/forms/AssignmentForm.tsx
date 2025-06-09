@@ -74,7 +74,7 @@ const AssignmentForm = ({
   useEffect(() => {
     if (state.success) {
       toast(
-        `Assignment has been ${type === "create" ? "created" : "updated"}!`
+        `الواجب تمّ ${type === "create" ? "إضافته" : "تعديله"}!`
       );
       setOpen(false);
       router.refresh();
@@ -86,19 +86,19 @@ const AssignmentForm = ({
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new exam" : "Update the exam"}
+        {type === "create" ? "اضافة واجب جديد" : "تعديل واجب قديم"}
       </h1>
 
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Exam title"
+          label="عنوان الواجب"
           name="title"
           defaultValue={data?.title}
           register={register}
           error={errors?.title}
         />
         <InputField
-          label="Start Date"
+          label="تاريخ ووقت البداية"
           name="startDate"
           defaultValue={data?.startDate}
           register={register}
@@ -106,7 +106,7 @@ const AssignmentForm = ({
           type="datetime-local"
         />
         <InputField
-          label="End Date"
+          label="تاريخ ووقت النهاية"
           name="dueDate"
           defaultValue={data?.dueDate}
           register={register}
@@ -115,7 +115,7 @@ const AssignmentForm = ({
         />
         {data && (
           <InputField
-            label="Id"
+            label="الرقم"
             name="id"
             defaultValue={data?.id}
             register={register}
@@ -144,10 +144,10 @@ const AssignmentForm = ({
         </div>
       </div>
       {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
+        <span className="text-red-500">حدث خطأ !</span>
       )}
       <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+        {type === "create" ? "إضافة" : "تحديث"}
       </button>
     </form>
   );

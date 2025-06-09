@@ -27,27 +27,27 @@ const ExamListPage = async ({
 
   const columns = [
     {
-      header: "Subject Name",
+      header: "اسم المادة",
       accessor: "name",
     },
     {
-      header: "Class",
+      header: "الصف",
       accessor: "class",
     },
     {
-      header: "Teacher",
+      header: "المدرس",
       accessor: "teacher",
       className: "hidden md:table-cell",
     },
     {
-      header: "Date",
+      header: "التاريخ",
       accessor: "date",
       className: "hidden md:table-cell",
     },
     ...(role === "admin" || role === "teacher"
       ? [
           {
-            header: "Actions",
+            header: "النشاط",
             accessor: "action",
           },
         ]
@@ -163,17 +163,16 @@ const ExamListPage = async ({
   ]);
 
   return (
-    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      {/* TOP */}
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Exams</h1>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0" dir="rtl">
+      {/* top*/}
+      <div className="flex flex-row-reverse items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center gap-4  w-full md:w-auto justify-start">
           <TableSearch />
-          <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+          <div className="flex items-center gap-4 ">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
               <Image src="/filter.png" alt="" width={14} height={14} />
             </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {(role === "admin" || role === "teacher") && (
@@ -181,6 +180,9 @@ const ExamListPage = async ({
             )}
           </div>
         </div>
+        <h1 className="hidden md:block text-lg font-semibold text-right">
+          كل الامتحانات
+        </h1>
       </div>
       {/* LIST */}
       <Table columns={columns} renderRow={renderRow} data={data} />

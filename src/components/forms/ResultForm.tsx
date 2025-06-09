@@ -43,7 +43,7 @@ const ResultForm = ({
 
   useEffect(() => {
     if (state.success) {
-      toast('Result has been ${type === "create" ? "created" : "updated"}!')
+      toast(`العلامات تمّ ${type === "create" ? "إضافتها" : "تعديلها"}!`);
       setOpen(false)
     }
   }, [state, setOpen, type])
