@@ -2,144 +2,118 @@ import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
-import { role } from "@/lib/data";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Assignment, Class, Prisma, Subject, Teacher } from "@prisma/client";
-import Image from "next/image";
-import { currentUserId } from "../students/page";
+import { auth } from "@clerk/nextjs/server";
 
 type AssignmentList = Assignment & {
-  lesson: { subject: Subject; class: Class; teacher: Teacher };
+  lesson: {
+    subject: Subject;
+    class: Class;
+    teacher: Teacher;
+  };
 };
-
-const columns = [
-  {
-    header: "اسم المادة",
-    accessor: "name",
-  },
-  {
-    header: "الحصة",
-    accessor: "class",
-  },
-  {
-    header: "الاستاذ",
-    accessor: "teacher",
-    className: "hidden md:table-cell",
-  },
-  {
-    header: "تاريخ الاستحقاق",
-    accessor: "dueDate",
-    className: "hidden md:table-cell",
-  },
-  ...(role === "admin" || role === "teacher"
-    ? [
-        {
-          header: "النشاط",
-          accessor: "action",
-        },
-      ]
-    : []),
-];
-
-const renderRow = (item: AssignmentList, lessons: any[]) => (
-  <tr
-    key={item.id}
-    className="border-b border-gray-200 even:bg-state-50 text-sm hover:bg-PurpleLight"
-  >
-    <td className="flex items-center gap-4 p-4 text-center">
-      {item.lesson.subject.name}
-    </td>
-    <td>{item.lesson.class.name}</td>
-    <td className="hidden md:table-cell text-right">
-      {item.lesson.teacher.name + " " + item.lesson.teacher.surname}
-    </td>
-    <td className="hidden md:table-cell text-right">
-      {new Intl.DateTimeFormat("ar-SY", {
-        timeZone: "Asia/Damascus",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(item.dueDate)}
-    </td>
-    <td>
-      <div className="flex items-center gap-2 justify-start">
-        {(role === "admin" || role === "teacher") && (
-          <>
-            <FormModal
-              table="assignment"
-              type="update"
-              data={item}
-              relatedData={{ lessons }}
-            />
-            <FormModal table="assignment" type="delete" id={item.id} />
-          </>
-        )}
-      </div>
-    </td>
-  </tr>
-);
 
 const AssignmentListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { page, ...queryParams } = await searchParams;
+  const { userId: currentUserId, sessionClaims } = await auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
+
+  const columns = [
+    { header: "عنوان الواجب", accessor: "title" },
+    { header: "اسم المادة", accessor: "name" },
+    { header: "الحصة", accessor: "class" },
+    { header: "الاستاذ", accessor: "teacher", className: "hidden md:table-cell" },
+    { header: "تاريخ الاستحقاق", accessor: "dueDate", className: "hidden md:table-cell" },
+    ...(role === "admin" || role === "teacher"
+      ? [{ header: "النشاط", accessor: "action" }]
+      : []),
+  ];
+
+  const renderRow = (item: AssignmentList, lessons: any[]) => (
+    <tr
+      key={item.id}
+      className="border-b border-gray-200 even:bg-state-50 text-sm hover:bg-PurpleLight"
+    >
+      <td className="p-4 whitespace-normal break-words max-w-xs">{item.title}</td>
+      <td>{item.lesson.subject.name}</td>
+      <td>{item.lesson.class.name}</td>
+      <td className="hidden md:table-cell">
+        {item.lesson.teacher.name + " " + item.lesson.teacher.surname}
+      </td>
+      <td className="hidden md:table-cell">
+        {new Intl.DateTimeFormat("ar-SY").format(item.dueDate)}
+      </td>
+      <td>
+        <div className="flex items-center gap-2 justify-start">
+          {(role === "admin" || role === "teacher") && (
+            <>
+              <FormModal
+                table="assignment"
+                type="update"
+                data={item}
+                relatedData={{ lessons }}
+              />
+              <FormModal table="assignment" type="delete" id={item.id} />
+            </>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+
+  const { page, ...queryParams } = searchParams;
   const p = page ? parseInt(page) : 1;
 
+  // --- منطق الفلترة الجديد والمُحسَّن ---
   const query: Prisma.AssignmentWhereInput = {};
-  query.lesson = {};
+  const lessonWhere: Prisma.LessonWhereInput = {};
 
-  if (queryParams) {
-    for (const [key, value] of Object.entries(queryParams)) {
-      if (value !== undefined) {
-        switch (key) {
-          case "classId":
-            query.lesson.classId = parseInt(value);
-            break;
-          case "teacherId":
-            query.lesson.teacherId = value;
-            break;
-          case "search":
-            query.lesson.subject = {
-              name: { contains: value },
-            };
-            break;
-          default:
-            break;
-        }
-      }
+  // 1. التعامل مع الفلاتر القادمة من الرابط (URL)
+  if (queryParams.search) {
+    query.OR = [
+      { title: { contains: queryParams.search } },
+      { lesson: { subject: { name: { contains: queryParams.search } } } }
+    ];
+  }
+  if (queryParams.classId) {
+    lessonWhere.classId = parseInt(queryParams.classId);
+  }
+
+  // 2. التحقق من وجود فلتر للمدرس في الرابط
+  if (queryParams.teacherId) {
+    // إذا وجد، استخدمه وتجاهل دور المستخدم الحالي
+    lessonWhere.teacherId = queryParams.teacherId;
+  } else {
+    // 3. إذا لم يوجد، طبق الفلترة حسب دور المستخدم
+    switch (role) {
+      case "admin":
+        break;
+      case "teacher":
+        lessonWhere.teacherId = currentUserId!;
+        break;
+      case "student":
+        lessonWhere.class = { students: { some: { id: currentUserId! } } };
+        break;
+      case "parent":
+        lessonWhere.class = { students: { some: { parentId: currentUserId! } } };
+        break;
+      default:
+        query.id = -1;
+        break;
     }
   }
 
-  switch (role) {
-    case "admin":
-      break;
-    case "teacher":
-      query.lesson.teacherId = currentUserId!;
-      break;
-    case "student":
-      query.lesson.class = {
-        students: {
-          some: {
-            id: currentUserId!,
-          },
-        },
-      };
-      break;
-    case "parent":
-      query.lesson.class = {
-        students: {
-          some: {
-            parentId: currentUserId!,
-          },
-        },
-      };
-      break;
-    default:
-      break;
+  // أضف شروط الحصة إلى البحث الرئيسي فقط إذا كانت تحتوي على شروط
+  if (Object.keys(lessonWhere).length > 0) {
+    query.lesson = lessonWhere;
   }
+  // --- نهاية منطق الفلترة ---
+
 
   const [data, count, lessons] = await prisma.$transaction([
     prisma.assignment.findMany({
@@ -173,13 +147,7 @@ const AssignmentListPage = async ({
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto justify-start">
           <TableSearch />
           <div className="flex items-center gap-4">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
-              <Image src="/filter.png" alt="" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
-              <Image src="/sort.png" alt="" width={14} height={14} />
-            </button>
-            {role === "admin" && (
+            {(role === "admin" || role === "teacher") && (
               <FormModal
                 table="assignment"
                 type="create"
@@ -189,7 +157,7 @@ const AssignmentListPage = async ({
           </div>
         </div>
         <h1 className="hidden md:block text-lg font-semibold text-right">
-          كل المواد المفروضة
+          كل الواجبات
         </h1>
       </div>
 

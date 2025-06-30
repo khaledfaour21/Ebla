@@ -5,75 +5,71 @@ import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import Image from "next/image";
-
-const columns = [
-  { header: "صورة", accessor: "image" },
-  { header: "اسم الكتاب", accessor: "title" },
-  { header: "السنة الدراسية", accessor: "grade" },
-  { header: "رابط الكتاب", accessor: "link" },
-  { header: "الوصف", accessor: "description" },
-  {
-    header: "النشاط",
-    accessor: "action",
-  },
-];
-
-const renderRow = (item: any) => (
-  <tr
-    key={item.id}
-    className="border-b border-gray-200 even:bg-state-50 text-sm hover:bg-PurpleLight"
-  >
-    <td className="p-2 text-center">
-      <div className="flex flex-col items-right">
-        <Image
-          src={item.image}
-          alt={item.title}
-          width={120}
-          height={120}
-          className="rounded-md object-cover border bg-gray-100"
-          style={{ objectFit: "cover" }}
-        />
-      </div>
-    </td>
-
-    <td className="text-right">{item.title}</td>
-    <td className="text-right">{item.grade}</td>
-    <td className="text-right">
-      <a
-        href={item.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-500 underline"
-      >
-        فتح الرابط
-      </a>
-    </td>
-    <td className="text-right">{item.description}</td>
-    <td className="text-right">
-      <div className="flex items-center gap-2 justify-start">
-        <FormContainer table="library" type="update" data={item} id={item.id} />
-        <FormContainer table="library" type="delete" id={item.id} />
-      </div>
-    </td>
-  </tr>
-);
+import { auth } from "@clerk/nextjs/server"; // <-- استيراد دالة auth
 
 const LibraryListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { page = "1", ...queryParams } = searchParams;
-  const p = parseInt(page);
-  const search = queryParams.search || "";
+  // --- جلب صلاحية المستخدم مباشرة هنا ---
+  const { sessionClaims } = await auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  // ------------------------------------
 
-  const where = search
-    ? {
-        title: {
-          contains: search,
-        },
-      }
-    : {};
+  // --- التعديل الأول: جعل عمود "النشاط" يظهر للمدير والمدرس فقط ---
+  const columns = [
+    { header: "صورة", accessor: "image" },
+    { header: "الصف ", accessor: "title" },
+    { header: "السنة الدراسية", accessor: "grade" },
+    { header: "رابط تحميل الكتب", accessor: "link" },
+    { header: "الوصف", accessor: "description" },
+    ...(role === "admin" 
+      ? [{ header: "النشاط", accessor: "action" }]
+      : []),
+  ];
+
+  const renderRow = (item: any) => (
+    <tr
+      key={item.id}
+      className="border-b border-gray-200 even:bg-state-50 text-sm hover:bg-PurpleLight"
+    >
+      <td className="p-2">
+        <Image
+          src={item.image || "/noavatar.png"}
+          alt={item.title}
+          width={80}
+          height={120}
+          className="rounded-md object-cover border bg-gray-100"
+          style={{ objectFit: "contain" }}
+        />
+      </td>
+      <td>{item.title}</td>
+      <td>{item.grade}</td>
+      <td>
+        <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+          فتح الرابط
+        </a>
+      </td>
+      <td>{item.description}</td>
+      <td>
+        <div className="flex items-center gap-2 justify-start">
+          {/* --- التعديل الثاني: إظهار أزرار التحكم للمدير والمدرس فقط --- */}
+          {(role === "admin" ) && (
+            <>
+              <FormContainer table="library" type="update" data={item} />
+              <FormContainer table="library" type="delete" id={item.id} />
+            </>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+
+  const { page = "1", search = "" } = searchParams;
+  const p = parseInt(page);
+
+  const where = search ? { title: { contains: search } } : {};
 
   const [data, count] = await prisma.$transaction([
     prisma.library.findMany({
@@ -91,13 +87,10 @@ const LibraryListPage = async ({
         <div className="flex items-center gap-4 w-full md:w-auto justify-start">
           <TableSearch />
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
-              <Image src="/filter.png" alt="" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
-              <Image src="/sort.png" alt="" width={14} height={14} />
-            </button>
-            <FormContainer table="library" type="create" />
+            {/* --- التعديل الثالث: إظهار زر الإضافة للمدير والمدرس فقط --- */}
+            {(role === "admin" ) && (
+              <FormContainer table="library" type="create" />
+            )}
           </div>
         </div>
         <h1 className="text-lg font-semibold text-right">مكتبة المدرسة</h1>

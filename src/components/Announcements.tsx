@@ -27,58 +27,43 @@ const Announcements = async () => {
 
   return (
     <div className="bg-white p-4 rounded-md">
-      <div className="flex items-center justify-between">
-        
-        <Link
-          href="/dashboard/list/announcements"
-          className="text-xs text-gray-400 hover:text-yellow-600"
+  <div className="flex items-center justify-between">
+    <Link
+      href="/dashboard/list/announcements"
+      className="text-xs text-gray-400 hover:text-yellow-600 hover:underline underline-offset-4 transition-colors duration-200"
+    >
+      استعراض الكل
+    </Link>
+    <h1 className="text-xl font-semibold">الإعلانات</h1>
+  </div>
+
+  {/* القائمة الديناميكية للإعلانات */}
+  <div className="flex flex-col gap-4 mt-4">
+    {/* نستخدم slice(0, 3) لعرض أول ثلاثة إعلانات فقط */}
+    {data.slice(0, 3).map((announcement, index) => {
+      // مصفوفة لتغيير الألوان تلقائياً
+      const bgColors = ['bg-SkyLight', 'bg-PurpleLight', 'bg-YellowLight'];
+      const bgColor = bgColors[index % bgColors.length]; // يختار اللون بناءً على الترتيب
+
+      return (
+        <div 
+          key={announcement.id}
+          className={`${bgColor} rounded-md p-4 shadow-md cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
         >
-          استعراض الكل
-        </Link>
-        <h1 className="text-xl font-semibold">الإعلانات</h1>
-      </div>
-      <div className="flex flex-col gap-4 mt-4">
-        {data[0] && (
-          <div className="bg-SkyLight rounded-md p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
-                {new Intl.DateTimeFormat("en-GB").format(data[0].date)}
-              </span>
-              <h2 className="font-medium">{data[0].title}</h2>
-            </div>
-            <p className="text-sm text-gray-400 mt-1 text-right" dir="rtl">
-              {data[0].description}
-            </p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
+              {new Intl.DateTimeFormat("en-GB").format(announcement.date)}
+            </span>
+            <h2 className="font-medium">{announcement.title}</h2>
           </div>
-        )}
-        {data[1] && (
-          <div className="bg-PurpleLight rounded-md p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
-                {new Intl.DateTimeFormat("en-GB").format(data[1].date)}
-              </span>
-              <h2 className="font-medium">{data[1].title}</h2>
-            </div>
-            <p className="text-sm text-gray-400 mt-1 text-right" dir="rtl">
-              {data[1].description}
-            </p>
-          </div>
-        )}
-        {data[2] && (
-          <div className="bg-YellowLight rounded-md p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
-                {new Intl.DateTimeFormat("en-GB").format(data[2].date)}
-              </span>
-              <h2 className="font-medium">{data[2].title}</h2>
-            </div>
-            <p className="text-sm text-gray-400 mt-1 text-right" dir="rtl">
-              {data[2].description}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+          <p className="text-sm text-gray-400 mt-1 text-right" dir="rtl">
+            {announcement.description}
+          </p>
+        </div>
+      );
+    })}
+  </div>
+</div>
   );
 };
 

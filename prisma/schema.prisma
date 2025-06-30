@@ -18,6 +18,8 @@ enum Day {
   WEDNESDAY
   THURSDAY
   FRIDAY
+  SATURDAY // 👈 Add this
+  SUNDAY   // 👈 And this
 }
 
 enum Term {
@@ -127,20 +129,25 @@ model Subject {
 }
 
 model Lesson {
-  id          Int          @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
-  day         Day
-  startTime   DateTime
-  endTime     DateTime
+  day         Day      // نحتفظ بهذا الحقل كما هو، فهو ممتاز
+
+  // -- التغيير الوحيد هنا --
+  startTime   String   // غيرنا النوع إلى نص
+  endTime     String   // غيرنا النوع إلى نص
+  // ----------------------
+
+  // باقي الحقول والعلاقات تبقى كما هي تماماً
   subjectId   Int
   classId     Int
   teacherId   String
   assignments Assignment[]
   attendances Attendance[]
   exams       Exam[]
-  class       Class        @relation(fields: [classId], references: [id])
-  subject     Subject      @relation(fields: [subjectId], references: [id])
-  teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  class       Class    @relation(fields: [classId], references: [id])
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  teacher     Teacher  @relation(fields: [teacherId], references: [id])
   results     Result[]
 
   @@index([classId])

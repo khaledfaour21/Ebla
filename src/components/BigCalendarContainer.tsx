@@ -9,7 +9,8 @@ const BigCalendarContainer = async ({
   type: "teacherId" | "classId";
   id: string | number;
 }) => {
-  const dataRes = await prisma.lesson.findMany({
+  // 1. جلب الحصص كالمعتاد
+  const lessonsFromDB = await prisma.lesson.findMany({
     where: {
       ...(type === "teacherId"
         ? { teacherId: id as string }
@@ -17,17 +18,19 @@ const BigCalendarContainer = async ({
     },
   });
 
-  const data = dataRes.map((lesson) => ({
-    title: lesson.name,
-    start: lesson.startTime,
-    end: lesson.endTime,
+  // 2. تحويلها إلى أحداث تقويم بتواريخ صحيحة
+  const scheduleWithDates = adjustScheduleToCurrentWeek(lessonsFromDB);
+
+  // 3. الخطوة الجديدة: تحويل التواريخ إلى نصوص (Serializable)
+  const serializableSchedule = scheduleWithDates.map(event => ({
+    ...event,
+    start: event.start.toISOString(),
+    end: event.end.toISOString(),
   }));
 
-  const schedule = adjustScheduleToCurrentWeek(data);
-
   return (
-    <div className="">
-      <BigCalendar data={schedule} />
+    <div className="h-full">
+      <BigCalendar data={serializableSchedule} />
     </div>
   );
 };

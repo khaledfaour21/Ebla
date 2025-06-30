@@ -1,16 +1,12 @@
 import Announcements from "@/components/Announcements";
-import BigCalendar from "@/components/BigCalendar";
 import BigCalendarContainer from "@/components/BigCalendarContainer";
 import FormContainer from "@/components/FormContainer";
-import Performance from "@/components/Performance";
-import StudentAttendanceCard from "@/components/StudentAttendanceCard";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { Class, Student } from "@prisma/client";
+import { Class, Student, Grade } from "@prisma/client"; // أضفنا Grade هنا
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
 const SingleStudentPage = async ({
   params: { id },
@@ -20,12 +16,17 @@ const SingleStudentPage = async ({
   const { sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
+  // جلب بيانات الطالب مع الشعبة والصف الدراسي
   const student:
-    | (Student & { class: Class & { _count: { lessons: number } } })
+    | (Student & {
+        class: (Class & { _count: { lessons: number } }) | null;
+        grade: Grade | null;
+      })
     | null = await prisma.student.findUnique({
     where: { id },
     include: {
       class: { include: { _count: { select: { lessons: true } } } },
+      grade: true, // جلب بيانات الصف الدراسي
     },
   });
 
@@ -39,34 +40,30 @@ const SingleStudentPage = async ({
       <div className="w-full xl:w-1/3 flex flex-col gap-4">
         <div className="bg-white p-4 rounded-md text-right" dir="rtl">
           <h1 className="text-xl font-semibold">الإختصارات</h1>
+          {/* روابط ديناميكية صحيحة */}
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-            <Link
-              className="p-3 rounded-md bg-SkyLight "
-              href={`/dashboard/list/lessons?classId=${2}`}
-            >
-              دروس الطالب
-            </Link>
+          
             <Link
               className="p-3 rounded-md bg-PurpleLight "
-              href={`/dashboard/list/teachers?classId=${2}`}
+              href={`/dashboard/list/teachers?classId=${student.classId}`}
             >
               اساتذة الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-YellowLight "
-              href={`/dashboard/list/results?studentId=${"student2"}`}
+              href={`/dashboard/list/results?studentId=${student.id}`}
             >
               نتائج الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-pink-50 "
-              href={`/dashboard/list/exams?classId=${2}`}
+              href={`/dashboard/list/exams?classId=${student.classId}`}
             >
               إمتحانات الطالب
             </Link>
             <Link
               className="p-3 rounded-md bg-SkyLight "
-              href={`/dashboard/list/assignnments?classId=${2}`}
+              href={`/dashboard/list/assignments?classId=${student.classId}`}
             >
               واجبات الطالب
             </Link>
@@ -93,17 +90,15 @@ const SingleStudentPage = async ({
                 <h1 className="text-xl font-semibold">
                   {student.name + " " + student.surname}
                 </h1>
-
                 {role === "admin" && (
                   <FormContainer table="student" type="update" data={student} />
                 )}
               </div>
-
               <p className="text-sm text-gray-500 break-words overflow-hidden text-ellipsis">
-                ;svnvmd;sdlmvvdsvdsvsdv.
               </p>
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
-                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 justify-end">
+                 {/* ... بيانات الطالب الشخصية مع أيقوناتها ... */}
+                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 justify-end">
                   <span className="truncate">{student.bloodType}</span>
                   <Image src="/blood.png" alt="" width={14} height={14} />
                 </div>
@@ -128,60 +123,37 @@ const SingleStudentPage = async ({
           </div>
           {/*small card */}
           <div className="flex-1 flex gap-4 justify-between flex-wrap ">
-            {/*card */}
-            
-            {/*card */}
             <div className="bg-white p-4 rounded-md flex flex-col items-center justify-center text-center gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleBranch.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">
-                  {student.class.name.charAt(0)}
-                </h1>
+              <Image src="/singleBranch.png" alt="" width={24} height={24} className="w-6 h-6"/>
+              <div>
+                <h1 className="text-xl font-semibold">{student.grade?.level}</h1>
                 <span className="text-sm text-gray-400">الصف</span>
               </div>
             </div>
-            {/*card */}
             <div className="bg-white p-4 rounded-md flex flex-col items-center justify-center text-center gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%] ">
-              <Image
-                src="/singleLesson.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">
-                  {student.class._count.lessons}
-                </h1>
+              <Image src="/singleLesson.png" alt="" width={24} height={24} className="w-6 h-6"/>
+              <div>
+                <h1 className="text-xl font-semibold">{student.class?._count.lessons}</h1>
                 <span className="text-sm text-gray-400">الدروس</span>
               </div>
             </div>
-            {/*card */}
             <div className="bg-white p-4 rounded-md flex flex-col items-center justify-center text-center gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleClass.png"
-                alt=""
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div className="">
-                <h1 className="text-xl font-semibold">{student.class.name}</h1>
-                <span className="text-sm text-gray-400">الحصص الدراسية</span>
+              <Image src="/singleClass.png" alt="" width={24} height={24} className="w-6 h-6"/>
+              <div>
+                <h1 className="text-xl font-semibold">{student.class?.name}</h1>
+                <span className="text-sm text-gray-400">الشعبة</span>
               </div>
             </div>
           </div>
         </div>
         {/*bottom */}
-        <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
+        <div className="mt-4 bg-white rounded-md p-4 h-[800px]" dir="rtl">
           <h1>جدول حصص الطالب</h1>
-          <BigCalendarContainer type="classId" id={student.class.id} />
+          {student.classId ? (
+            <BigCalendarContainer type="classId" id={student.classId} />
+          ) : (
+            <div className="flex justify-center items-center h-full">الطالب غير مسجل في أي شعبة.</div>
+          )}
         </div>
       </div>
     </div>

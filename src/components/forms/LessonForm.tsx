@@ -76,7 +76,8 @@ const LessonForm = ({
             defaultValue={data?.day}
           >
             <option value="">اختر اليوم</option>
-            {["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].map(
+            {/* --- هذه هي المصفوفة الصحيحة --- */}
+            {["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY"].map(
               (day) => (
                 <option value={day} key={day}>
                   {day}
@@ -92,8 +93,8 @@ const LessonForm = ({
         <InputField
           label="وقت البداية"
           name="startTime"
-          type="datetime-local"
-          defaultValue={data?.startTime?.toISOString().slice(0, 16)}
+          type="time" // 👈 غيرنا النوع إلى وقت فقط
+          defaultValue={data?.startTime} // 👈 بسّطنا القيمة الافتراضية
           register={register}
           error={errors?.startTime}
         />
@@ -101,8 +102,8 @@ const LessonForm = ({
         <InputField
           label="وقت النهاية"
           name="endTime"
-          type="datetime-local"
-          defaultValue={data?.endTime?.toISOString().slice(0, 16)}
+          type="time" // 👈 غيرنا النوع إلى وقت فقط
+          defaultValue={data?.endTime} // 👈 بسّطنا القيمة الافتراضية
           register={register}
           error={errors?.endTime}
         />

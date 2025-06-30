@@ -1,37 +1,81 @@
 "use client";
 
-import { Calendar, momentLocalizer, View, Views } from "react-big-calendar";
+import { Calendar, momentLocalizer, View } from "react-big-calendar"; // 👈 تأكد من استيراد View
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useState } from "react";
-moment.locale("ar");
+import { useMemo, useState } from "react"; // 👈 تأكد من استيراد useState
+
+// إعدادات اللغة الإنجليزية مع بداية الأسبوع من الأحد
+moment.updateLocale("en", {
+  week: {
+    dow: 0, // 0 = Sunday
+  },
+});
+
 const localizer = momentLocalizer(moment);
 
-const BigCalendar = ({
-  data,
-}: {
-  data: { title: string; start: Date; end: Date }[];
-}) => {
-  const [view, setView] = useState<View>(Views.WORK_WEEK);
+type SerializableEvent = {
+  title: string;
+  start: string; 
+  end: string;
+}
 
-  
+const BigCalendar = ({ data: serializableData }: { data: SerializableEvent[] }) => {
 
-  const handleOnChangeView = (selectedView: View) => {
-    setView(selectedView);
+  // --- هذا هو الإصلاح: نضيف State للتحكم في العرض ---
+  const [view, setView] = useState<View>('week');
+  // ----------------------------------------------------
+
+  const events = useMemo(() => serializableData.map(event => ({
+    ...event,
+    start: new Date(event.start),
+    end: new Date(event.end),
+  })), [serializableData]);
+
+  const dayPropGetter = (date: Date) => {
+    const day = date.getDay();
+    if (day === 5 || day === 6) {
+      return { className: 'rbc-day-hidden' };
+    }
+    return {};
   };
+
+  const { components, formats } = useMemo(
+    () => ({
+      components: {
+        header: ({ date }: { date: Date }) => (
+          <span>{moment(date).format('ddd')}</span>
+        ),
+        event: ({ event }: { event: { title: string } }) => (
+          <span><strong>{event.title}</strong></span>
+        ),
+      },
+      formats: {
+        timeGutterFormat: 'h:mm A',
+        eventTimeRangeFormat: () => "",
+      },
+    }),
+    []
+  );
 
   return (
     <Calendar
       localizer={localizer}
-      events={data}
+      events={events}
       startAccessor="start"
       endAccessor="end"
-      views={["work_week", "day"]}
-      view={view}
       style={{ height: "98%" }}
-      onView={handleOnChangeView}
-      min={new Date(2025,3,27,8,0,0)}
-      max={new Date(2025,3,27,16,0,0)}
+      dayPropGetter={dayPropGetter}
+      components={components}
+      formats={formats}
+      min={new Date(0, 0, 0, 8, 0, 0)}
+      max={new Date(0, 0, 0, 16, 0, 0)}
+      rtl={true}
+      
+      // --- هنا نخبر التقويم بكيفية التعامل مع الأزرار ---
+      views={['week', 'day']}
+      view={view} // نربط العرض بالـ state
+      onView={(view) => setView(view)} // عند الضغط على زر، نحدّث الـ state
     />
   );
 };

@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+// 1. استورد useRef
+import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
 import { useFormState } from "react-dom";
 import { toast } from "react-toastify";
 import { createLibrary, updateLibrary } from "@/lib/actions";
@@ -21,7 +22,7 @@ const LibraryForm = ({
   type: "create" | "update";
   data?: any;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any; // أضف هذا السطر
+  relatedData?: any;
 }) => {
   const {
     register,
@@ -45,10 +46,13 @@ const LibraryForm = ({
     }
   );
 
+  // 2. أنشئ الـ ref هنا
+  const isToastShown = useRef(false);
+
   const onSubmit = handleSubmit((formData) => {
     formAction({
       ...formData,
-      image: img?.secure_url || "", // هنا الحل
+      image: img?.secure_url || "",
       id: data?.id,
     });
   });
@@ -56,10 +60,14 @@ const LibraryForm = ({
   const router = useRouter();
 
   useEffect(() => {
-    if (state.success) {
+    // 3. أضف الشرط الجديد هنا
+    if (state.success && !isToastShown.current) {
       toast(`الكتاب تم ${type === "create" ? "إضافته" : "تعديله"} بنجاح!`);
       setOpen(false);
       router.refresh();
+
+      // 4. حدّث قيمة الـ ref
+      isToastShown.current = true;
     }
   }, [state, setOpen, type, router]);
 
@@ -103,7 +111,7 @@ const LibraryForm = ({
         <label className="text-xs text-gray-500">صورة الكتاب</label>
         <CldUploadWidget
           uploadPreset="school"
-          onSuccess={(result, { widget }) => {
+          onSuccess={(result: any, { widget }) => {
             setImg(result.info);
             widget.close();
           }}

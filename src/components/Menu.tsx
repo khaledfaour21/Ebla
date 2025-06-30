@@ -38,7 +38,7 @@ const menuItems = [
       },
       {
         icon: "/class.png",
-        label: "الحصص الدراسية",
+        label: "الشعب الدراسية",
         href: "/dashboard/list/classes",
         visible: ["admin", "teacher"],
       },
@@ -56,7 +56,7 @@ const menuItems = [
       },
       {
         icon: "/assignment.png",
-        label: "التكليف",
+        label: "الواجبات",
         href: "/dashboard/list/assignments",
         visible: ["admin", "teacher", "student", "parent"],
       },
@@ -88,6 +88,12 @@ const menuItems = [
         icon: "/announcement.png",
         label: "الإعلانات",
         href: "/dashboard/list/announcements",
+        visible: ["admin", "teacher", "student", "parent"],
+      },
+       {
+        icon: "/school.png",
+        label: "من نحن",
+        href: "/dashboard/list/school",
         visible: ["admin", "teacher", "student", "parent"],
       },
     ],
@@ -122,26 +128,36 @@ const Menu =async () => {
   const user = await currentUser()
   const role = user?.publicMetadata.role as string
   return (
-      <div className="mt-4 text-sm rtl">
-        {menuItems.map(i=>(
-          <div className="flex flex-col gap-1.5" key={i.title}>
-            <span className="hidden lg:block text-gray-400 font-light mb-4 text-right">{i.title}</span>
-            {i.items.map(item=>{
-              if(item.visible.includes(role)){
-                return (
-                  <Link
-                   href={item.href}
-                    key={item.label} 
-                    className="flex items-center justify-end gap-4 text-gray-500 py-2 md-px-2 hover:bg-gray-100 rounded-md hover:bg-SkyLight">
-                  <Image src={item.icon} alt="" width={20} height={20} className="order-last"/>
-                  <span className="hidden lg:block">{item.label}</span>
-                  </Link>
-                )
-              }
-            })}
-          </div>
-        ))}
-      </div>
+     <div className="mt-4 text-sm rtl">
+  {menuItems.map((i) => (
+    <div className="flex flex-col gap-1.5" key={i.title}>
+      <span className="hidden lg:block text-gray-400 font-light mb-4 text-right">
+        {i.title}
+      </span>
+      {i.items.map((item) => {
+        if (item.visible.includes(role)) {
+          return (
+            <Link
+              href={item.href}
+              key={item.label}
+              // --- هذا هو السطر الذي تم تعديله ---
+              className="flex items-center justify-end gap-4 text-gray-500 p-2 rounded-md transition-all duration-200 hover:bg-SkyLight hover:text-black hover:translate-x-2"
+            >
+              <Image
+                src={item.icon}
+                alt=""
+                width={20}
+                height={20}
+                className="order-last"
+              />
+              <span className="hidden lg:block">{item.label}</span>
+            </Link>
+          );
+        }
+      })}
+    </div>
+  ))}
+</div>
   )
 }
   

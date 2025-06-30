@@ -918,12 +918,9 @@ export const createLesson = async (
   data: LessonSchema
 ) => {
   try {
+    // ببساطة قم بتمرير البيانات كما هي. لا حاجة لإعادة تعريف الحقول.
     await prisma.lesson.create({
-      data: {
-        ...data,
-        startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime),
-      },
+      data: data,
     });
     return { success: true, error: false };
   } catch (err) {
@@ -932,18 +929,19 @@ export const createLesson = async (
   }
 };
 
+
+// --- الدالة المعدلة لتحديث درس ---
 export const updateLesson = async (
   currentState: CurrentState,
   data: LessonSchema
 ) => {
   try {
+    // من الأفضل فصل الـ id عن باقي البيانات عند التحديث
+    const { id, ...restOfData } = data;
+    
     await prisma.lesson.update({
-      where: { id: data.id },
-      data: {
-        ...data,
-        startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime),
-      },
+      where: { id: id },
+      data: restOfData, // نمرر باقي البيانات هنا
     });
     return { success: true, error: false };
   } catch (err) {

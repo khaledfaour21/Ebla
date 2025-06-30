@@ -169,12 +169,7 @@ const ExamListPage = async ({
         <div className="flex flex-col md:flex-row items-center gap-4  w-full md:w-auto justify-start">
           <TableSearch />
           <div className="flex items-center gap-4 ">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
-              <Image src="/filter.png" alt="" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
-              <Image src="/sort.png" alt="" width={14} height={14} />
-            </button>
+            
             {(role === "admin" || role === "teacher") && (
               <FormContainer table="exam" type="create" />
             )}

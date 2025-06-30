@@ -78,12 +78,6 @@ export type StudentSchema = z.infer<typeof studentSchema>;
 
 export type TeacherSchema = z.infer<typeof teacherSchema>;
 
-
-
-
-
-
-
 export const ParentSchema = z.object({
   id: z.string().optional(), // لأن الـ id في Prisma هو String وممكن يكون موجود أو لا عند الإنشاء
   username: z
@@ -109,11 +103,6 @@ export const ParentSchema = z.object({
 
 export type ParentSchema = z.infer<typeof ParentSchema>;
 
-
-
-
-
-
 export const assignmentSchema = z.object({
   id: z.coerce.number().optional(), // لأن id تلقائي الزيادة، اختياري عند الإنشاء
   title: z.string().min(1, { message: "Title is required!" }),
@@ -124,8 +113,6 @@ export const assignmentSchema = z.object({
 
 export type AssignmentSchema = z.infer<typeof assignmentSchema>;
 
-
-
 export const examSchema = z.object({
   id: z.coerce.number().optional(),
   title: z.string().min(1, { message: "Title name is required!" }),
@@ -135,10 +122,6 @@ export const examSchema = z.object({
 });
 
 export type ExamSchema = z.infer<typeof examSchema>;
-
-
-
-
 
 export const eventSchema = z.object({
   id: z.number().optional(),
@@ -160,11 +143,6 @@ export const eventSchema = z.object({
 
 export type EventSchema = z.infer<typeof eventSchema>;
 
-
-
-
-
-
 export const announcementSchema = z.object({
   id: z.number().optional(),
   title: z.string().min(1, { message: "Title is required!" }),
@@ -178,24 +156,32 @@ export const announcementSchema = z.object({
 
 export type AnnouncementSchema = z.infer<typeof announcementSchema>;
 
-
-
-
 export const lessonSchema = z.object({
   id: z.coerce.number().optional(),
   name: z.string().min(1, { message: "اسم الحصة مطلوب!" }),
-  day: z.enum(["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]),
-  startTime: z.string().min(1, { message: "وقت البداية مطلوب!" }),
-  endTime: z.string().min(1, { message: "وقت النهاية مطلوب!" }),
+  // قمت بإضافة يومي السبت والأحد للاحتياط
+  day: z.enum([
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+  ]),
+  // استخدمنا regex للتحقق من صيغة الوقت HH:MM
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: "صيغة الوقت غير صحيحة. استخدم HH:MM",
+  }),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: "صيغة الوقت غير صحيحة. استخدم HH:MM",
+  }),
   subjectId: z.coerce.number().min(1, { message: "المادة مطلوبة!" }),
   classId: z.coerce.number().min(1, { message: "الصف مطلوب!" }),
-  teacherId: z.coerce.string().min(1, { message: "المعلم مطلوب!" }),
+  teacherId: z.string().min(1, { message: "المعلم مطلوب!" }),
 });
 
 export type LessonSchema = z.infer<typeof lessonSchema>;
-
-
-
 
 export const resultSchema = z.object({
   id: z.coerce.number().optional(),
@@ -209,10 +195,8 @@ export const resultSchema = z.object({
   final: z.string().optional(),
   total: z.string().optional(),
   note: z.string().optional(),
-})
-export type ResultSchema = z.infer<typeof resultSchema>
-
-
+});
+export type ResultSchema = z.infer<typeof resultSchema>;
 
 export const librarySchema = z.object({
   title: z.string().min(1, "الاسم مطلوب"),
@@ -220,6 +204,6 @@ export const librarySchema = z.object({
   link: z.string().url("يجب أن يكون رابط صحيح"),
   description: z.string().min(1, "الوصف مطلوب"),
   image: z.string().optional(),
-})
+});
 
-export type LibrarySchema = z.infer<typeof librarySchema>
+export type LibrarySchema = z.infer<typeof librarySchema>;
