@@ -34,7 +34,7 @@ const TeacherListPage = async ({
       className: "hidden md:table-cell",
     },
     {
-      header: "الحصص",
+      header: "الشعبة الدراسية",
       accessor: "classes",
       className: "hidden md:table-cell",
     },

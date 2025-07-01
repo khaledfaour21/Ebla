@@ -5,7 +5,7 @@ import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { auth } from "@clerk/nextjs/server";
-import { Class, Prisma, Student } from "@prisma/client";
+import { Class, Grade, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,8 +13,10 @@ const { userId, sessionClaims } = await auth();
 export const role = (sessionClaims?.metadata as { role?: string })?.role;
 export const currentUserId = userId;
 
-type StudentList = Student & { class: Class };
-const columns = [
+type StudentList = Student & { 
+  class: Class | null;
+  grade: Grade | null; // <-- Add this line
+};const columns = [
   {
     header: "المعلومات",
     accessor: "info",
@@ -66,12 +68,11 @@ const renderRow = (item: StudentList) => (
       />
       <div className="flex flex-col">
         <h3 className="font-semibold text-right">{item.name}</h3>
-        <p className="text-xs text-gray-500 text-right">{item.class.name}</p>
+        <p className="text-xs text-gray-500 text-right">{item.class?.name}</p>
       </div>
     </td>
     <td className="hidden md:table-cell text-right">{item.username}</td>
-    <td className="hidden md:table-cell text-right">{item.class.name[0]}</td>
-
+    <td className="hidden md:table-cell text-right">{item.grade?.level}</td>
     <td className="hidden md:table-cell text-right">{item.phone}</td>
     <td className="hidden md:table-cell text-right">{item.address}</td>
     <td>
@@ -131,6 +132,7 @@ const StudentListPage = async ({
       where: query,
       include: {
         class: true,
+        grade: true, // <-- Add this line
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
@@ -145,7 +147,6 @@ const StudentListPage = async ({
         <div className="flex flex-col md:flex-row items-center gap-4  w-full md:w-auto justify-start">
           <TableSearch />
           <div className="flex items-center gap-4 ">
-         
             {role === "admin" && (
               /* <button className="w-8 h-8 flex items-center justify-center rounded-full bg-Yellow">
                             <Image src="/plus.png" alt="" width={14} height={14}/>

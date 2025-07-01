@@ -96,8 +96,21 @@ const menuItems = [
         href: "/dashboard/list/school",
         visible: ["admin", "teacher", "student", "parent"],
       },
+      
     ],
   },
+
+  {
+  title: "عمليات النظام",
+  items: [
+    {
+      label: "عمليات نهاية العام",
+      href: "/dashboard/settings", // رابط الصفحة الجديدة
+      icon: "/promote.png", // يمكنك استخدام أيقونة مناسبة
+      visible: ["admin"], // مرئي للمدير فقط
+    },
+  ],
+}
   // {
   //   title: "غير ذلك",
   //   items: [

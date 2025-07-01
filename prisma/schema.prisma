@@ -12,6 +12,12 @@ enum UserSex {
   FEMALE
 }
 
+enum StudentStatus {
+  ACTIVE
+  GRADUATED
+  REPEATING
+}
+
 enum Day {
   MONDAY
   TUESDAY
@@ -50,15 +56,16 @@ model Student {
   address     String
   img         String?
   bloodType   String
+  status    StudentStatus @default(ACTIVE)
   sex         UserSex
   parentId    String
-  classId     Int
+  classId     Int?
   gradeId     Int
   birthday    DateTime
   createdAt   DateTime     @default(now())
   attendances Attendance[]
   results     Result[]
-  class       Class        @relation(fields: [classId], references: [id])
+  class       Class?        @relation(fields: [classId], references: [id])
   grade       Grade        @relation(fields: [gradeId], references: [id])
   parent      Parent       @relation(fields: [parentId], references: [id])
 
@@ -126,6 +133,7 @@ model Subject {
   name     String    @unique
   lessons  Lesson[]
   teachers Teacher[] @relation("SubjectToTeacher")
+  maxMark  Int?
 }
 
 model Lesson {

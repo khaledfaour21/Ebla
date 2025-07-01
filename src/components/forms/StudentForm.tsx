@@ -8,15 +8,11 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   studentSchema,
   StudentSchema,
-  teacherSchema,
-  TeacherSchema,
 } from "@/lib/formValidationSchemas";
 import { useFormState } from "react-dom";
 import {
   createStudent,
-  createTeacher,
   updateStudent,
-  updateTeacher,
 } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -67,7 +63,8 @@ const StudentForm = ({
     }
   }, [state, router, type, setOpen]);
 
-  const { grades, classes } = relatedData;
+  // --- التعديل الأول: أضفنا parents هنا ---
+  const { grades, classes, parents } = relatedData;
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
@@ -162,18 +159,33 @@ const StudentForm = ({
         <InputField
           label="تاريخ الميلاد"
           name="birthday"
-          defaultValue={data?.birthday.toISOString().split("T")[0]}
+          defaultValue={data?.birthday?.toISOString().split("T")[0]}
           register={register}
           error={errors.birthday}
           type="date"
         />
-        <InputField
-          label="رقم الأب"
-          name="parentId"
-          defaultValue={data?.parentId}
-          register={register}
-          error={errors.parentId}
-        />
+        
+        {/* --- التعديل الثاني: استبدال حقل النص بقائمة منسدلة --- */}
+        <div className="flex flex-col gap-2 w-full md:w-1/4">
+          <label className="text-xs text-gray-500">ولي الأمر</label>
+          <select
+            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+            {...register("parentId")}
+            defaultValue={data?.parentId}
+          >
+            <option value="">اختر ولي الأمر</option>
+            {parents?.map((parent: { id: string; name: string, surname: string }) => (
+              <option value={parent.id} key={parent.id}>
+                {parent.name} {parent.surname}
+              </option>
+            ))}
+          </select>
+          {errors.parentId && (
+            <p className="text-xs text-red-400">{errors.parentId.message}</p>
+          )}
+        </div>
+        {/* ---------------------------------------------------- */}
+
         {data && (
           <InputField
             label="الرقم"

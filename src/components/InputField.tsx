@@ -3,6 +3,8 @@ import { FieldError } from "react-hook-form";
 type InputFieldProps = {
     label:string;
     type?:string;
+      placeholder?: string; // <-- أضفنا هذا السطر
+
     register:any;
     name:string;
     defaultValue?:string;
@@ -16,6 +18,8 @@ type InputFieldProps = {
 const InputField = ({
   label,
   type = "text",
+    placeholder = "", // <-- أضفنا هذا السطر
+
   register,
   name,
   defaultValue,
@@ -31,8 +35,11 @@ InputFieldProps ) => {
         <input
          type={type} 
         {...register(name)} 
+                placeholder={placeholder} // <-- استخدمناها هنا
+
          className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
         {...inputProps}
+        
         defaultValue={defaultValue}
         />
         {error?.message && (

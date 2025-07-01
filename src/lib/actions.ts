@@ -15,58 +15,177 @@ import {
   TeacherSchema,
 } from "./formValidationSchemas";
 import prisma from "./prisma";
-import { createClerkClient } from "@clerk/nextjs/server";
+import { auth, createClerkClient } from "@clerk/nextjs/server";
 
 type CurrentState = { success: boolean; error: boolean };
 
 const clerkClient = await createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
+  
 });
+const verifyAdminPermission = async () => {
+  const { sessionClaims } = await auth();
+  const userRole = (sessionClaims?.metadata as { role?: string })?.role;
+  if (userRole !== "admin") {
+    throw new Error("ACCESS_DENIED: أنت غير مخول للقيام بهذه العملية.");
+  }
+};
+
+// في ملف lib/actions.ts
+
+// ... (imports and other actions)
+
+// هذه الدالة ستقوم بحذف عنصر من أي جدول
+export const deleteItem = async (currentState: any, formData: FormData) => {
+  // تأكد من وجود دالة التحقق من صلاحيات المدير لديك
+  // await verifyAdminPermission(); 
+
+  const id = formData.get("id") as string;
+  const table = formData.get("table") as string;
+
+  if (!id || !table) {
+    return { success: false, error: true, message: "بيانات الحذف ناقصة." };
+  }
+
+  try {
+    // استخدام Prisma لحذف العنصر من الجدول المحدد ديناميكياً
+    await (prisma as any)[table].delete({
+      where: { id: Number.isInteger(parseInt(id)) ? parseInt(id) : id },
+    });
+
+    revalidatePath(`/dashboard/list/${table}s`);
+    return { success: true, error: false, message: "تم الحذف بنجاح" };
+  } catch (err: any) {
+    // في حال كان العنصر مرتبطاً ببيانات أخرى (مثل طالب له نتائج) سيمنع الحذف
+    if (err.code === 'P2003') {
+        return { success: false, error: true, message: "لا يمكن حذف هذا العنصر لأنه مرتبط ببيانات أخرى." };
+    }
+    return { success: false, error: true, message: "فشل الحذف." };
+  }
+};
+// أضف هذه الدالة الجديدة في ملف actions.ts
+
+export const simulatePromoteStudents = async () => {
+  "use server";
+  try {
+    // لا حاجة للتحقق من صلاحيات المدير في التشغيل التجريبي
+    // await verifyAdminPermission();
+
+    const studentsToProcess = await prisma.student.findMany({
+      where: {
+        status: 'ACTIVE',
+        grade: {
+          level: { in: [1, 2, 3, 4, 5, 6] }
+        }
+      },
+      include: {
+        grade: true,
+        results: {
+          where: { term: 'SECOND' },
+          include: {
+            lesson: {
+              include: {
+                subject: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const reportLines = []; // سنجمع النتائج هنا بدلاً من تنفيذها
+
+    for (const student of studentsToProcess) {
+      const hasResults = student.results && student.results.length > 0;
+      const hasPassedAllSubjects = hasResults && student.results.every(result => {
+        if (!result.lesson?.subject?.maxMark) return false;
+        const passingScore = result.lesson.subject.maxMark * 0.40;
+        const studentScore = parseInt(result.total || "0");
+        return studentScore >= passingScore;
+      });
+
+      const studentIdentifier = `${student.name} ${student.surname} (الصف ${student.grade.level})`;
+
+      if (hasPassedAllSubjects) {
+        if (student.grade.level === 6) {
+          reportLines.push(`✅ ${studentIdentifier} -> ناجح وسيتم تخرجه.`);
+        } else {
+          reportLines.push(`⬆️ ${studentIdentifier} -> ناجح وسيتم ترفيعه إلى الصف ${student.grade.level + 1}.`);
+        }
+      } else {
+        reportLines.push(`🔁 ${studentIdentifier} -> لم ينجح وسيعيد السنة.`);
+      }
+    }
+
+    if(reportLines.length === 0){
+        return { success: true, message: "لم يتم العثور على طلاب نشطين للمعالجة." };
+    }
+
+    // إرجاع التقرير كنص
+    return { success: true, message: "تقرير التشغيل التجريبي:\n\n" + reportLines.join('\n') };
+
+  } catch (err: any) {
+    return { success: false, message: `حدث خطأ: ${err.message}` };
+  }
+};
+// في ملف actions.ts
+
+// ... (تأكد من وجود verifyAdminPermission)
 
 export const createSubject = async (
   currentState: CurrentState,
   data: SubjectSchema
 ) => {
   try {
+    await verifyAdminPermission();
     await prisma.subject.create({
       data: {
         name: data.name,
+        maxMark: data.maxMark,
         teachers: {
-          connect: data.teachers.map((teacherId) => ({ id: teacherId })),
+          connect: data.teachers.map((id) => ({ id: id })),
         },
       },
     });
-
-    // revalidatePath("/list/subjects");
-    return { success: true, error: false };
-  } catch (err) {
+    revalidatePath("/dashboard/list/subjects");
+    // أضفنا message هنا
+    return { success: true, error: false, message: "تمت إضافة المادة بنجاح." };
+  } catch (err: any) {
     console.log(err);
-    return { success: false, error: true };
+    // أضفنا message هنا
+    return { success: false, error: true, message: err.message };
   }
 };
 
+// في ملف actions.ts
 export const updateSubject = async (
   currentState: CurrentState,
-  data: SubjectSchema
+  data: SubjectSchema & { id: number }
 ) => {
+  // --- هذا الشرط مهم جداً ---
+  if (!data.id) {
+    return { success: false, error: true, message: "ID المادة مفقود، لا يمكن التحديث." };
+  }
+  // -------------------------
+
   try {
+    await verifyAdminPermission();
+    
     await prisma.subject.update({
-      where: {
-        id: data.id,
-      },
+      where: { id: data.id }, // الآن data.id مضمونة
       data: {
         name: data.name,
+        maxMark: data.maxMark,
         teachers: {
-          set: data.teachers.map((teacherId) => ({ id: teacherId })),
+          set: (data.teachers || []).map((id) => ({ id: id })),
         },
       },
     });
 
-    // revalidatePath("/list/subjects");
-    return { success: true, error: false };
-  } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
+    revalidatePath("/dashboard/list/subjects");
+    return { success: true, error: false, message: "تم تعديل المادة بنجاح." };
+  } catch (err: any) {
+    return { success: false, error: true, message: err.message };
   }
 };
 
@@ -1111,3 +1230,153 @@ export const deleteLibrary = async (
     return { success: false, error: true }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const promoteStudentsEndOfYear = async () => {
+  "use server";
+  try {
+    // هذا يفترض وجود دالة للتحقق من صلاحيات المدير
+    // await verifyAdminPermission(); 
+
+    const studentsToProcess = await prisma.student.findMany({
+      where: {
+        status: 'ACTIVE',
+        grade: {
+          level: { in: [1, 2, 3, 4, 5, 6] }
+        }
+      },
+      include: {
+        grade: true,
+        results: {
+          where: { term: 'SECOND' },
+          include: {
+            lesson: {
+              include: {
+                subject: true 
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const grades = await prisma.grade.findMany();
+    const gradeMap = new Map<number, number>();
+    grades.forEach(g => gradeMap.set(g.level, g.id));
+    
+    const updates = [];
+
+    for (const student of studentsToProcess) {
+      const hasResults = student.results && student.results.length > 0;
+      
+      const hasPassedAllSubjects = hasResults && student.results.every(result => {
+        // --- هذا هو الإصلاح ---
+        // إذا كانت النتيجة غير مرتبطة بشكل صحيح بمادة لديها علامة عظمى،
+        // نعتبر الطالب راسباً في هذه المادة كإجراء وقائي.
+        if (!result.lesson?.subject?.maxMark) {
+          return false; 
+        }
+        // --- نهاية الإصلاح ---
+        
+        const passingScore = result.lesson.subject.maxMark * 0.40;
+        const studentScore = parseInt(result.total || "0");
+        
+        return studentScore >= passingScore;
+      });
+
+      if (hasPassedAllSubjects) {
+        if (student.grade.level === 6) {
+          // تخرج الطالب
+          updates.push(prisma.student.update({
+            where: { id: student.id },
+            data: { status: 'GRADUATED', classId: null }
+          }));
+        } else {
+          // ترفيع الطالب
+          const nextGradeId = gradeMap.get(student.grade.level + 1);
+          if (nextGradeId) {
+            updates.push(prisma.student.update({
+              where: { id: student.id },
+              data: { 
+                gradeId: nextGradeId, 
+                classId: null 
+              } 
+            }));
+          }
+        }
+      } else {
+        // تحديد الطالب كمعيد للسنة
+        updates.push(prisma.student.update({
+          where: { id: student.id },
+          data: { 
+            status: 'REPEATING', 
+            classId: null 
+          }
+        }));
+      }
+    }
+
+    await prisma.$transaction(updates);
+
+    revalidatePath("/dashboard/list/students");
+    return { success: true, message: `تمت معالجة ${updates.length} طالباً بنجاح.` };
+
+  } catch (err: any) {
+    return { success: false, message: err.message };
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const verifyPasswordAndPromoteStudents = async (password: string) => {
+  "use server";
+  
+  const { userId } =await auth();
+  if (!userId) {
+    return { success: false, message: "المستخدم غير مسجل الدخول." };
+  }
+
+  try {
+    // 1. التحقق من كلمة المرور باستخدام Clerk
+    const result = await clerkClient.users.verifyPassword({
+      userId,
+      password,
+    });
+
+    if (result.verified) {
+      // 2. إذا كانت كلمة المرور صحيحة، قم بتشغيل دالة الترفيع
+      console.log("Password verified. Starting promotion process...");
+      return await promoteStudentsEndOfYear();
+    } else {
+      return { success: false, message: "كلمة المرور غير صحيحة." };
+    }
+  } catch (err: any) {
+    console.error("Verification Error:", err);
+    // Clerk يرسل خطأ إذا كانت كلمة المرور خاطئة، لذلك نلتقطه هنا
+    return { success: false, message: "كلمة المرور التي أدخلتها غير صحيحة." };
+  }
+};

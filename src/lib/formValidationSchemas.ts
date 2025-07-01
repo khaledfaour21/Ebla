@@ -3,6 +3,7 @@ import { z } from "zod";
 export const subjectSchema = z.object({
   id: z.coerce.number().optional(),
   name: z.string().min(1, { message: "اسم المادة مطلوب !" }),
+  maxMark: z.coerce.number().min(1, { message: "العلامة العظمى مطلوبة." }),
   teachers: z.array(z.string()),
 });
 
@@ -11,6 +12,8 @@ export type SubjectSchema = z.infer<typeof subjectSchema>;
 export const classSchema = z.object({
   id: z.coerce.number().optional(),
   name: z.string().min(1, { message: "اسم المادة مطلوب !" }),
+ 
+
   capacity: z.coerce.number().min(1, { message: "السعة مطلوبة !" }),
   gradeId: z.coerce.number().min(1, { message: "الصف مطلوب !" }),
   supervisorId: z.coerce.string().optional(),
@@ -183,10 +186,11 @@ export const lessonSchema = z.object({
 
 export type LessonSchema = z.infer<typeof lessonSchema>;
 
+// أضف هذا المخطط إلى ملفك
 export const resultSchema = z.object({
   id: z.coerce.number().optional(),
-  studentId: z.string(),
-  lessonId: z.coerce.number(),
+  studentId: z.string().min(1, { message: "يجب اختيار طالب." }),
+  lessonId: z.coerce.number().min(1, { message: "يجب اختيار درس." }),
   term: z.enum(["FIRST", "SECOND"]),
   quiz1: z.string().optional(),
   quiz2: z.string().optional(),
@@ -196,6 +200,7 @@ export const resultSchema = z.object({
   total: z.string().optional(),
   note: z.string().optional(),
 });
+
 export type ResultSchema = z.infer<typeof resultSchema>;
 
 export const librarySchema = z.object({

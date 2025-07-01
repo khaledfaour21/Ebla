@@ -4,6 +4,10 @@ import CountChartTeachers from "@/components/CountChartTeachers"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
 import FinanceChart from "@/components/FinanceChart"
 import UserCard from "@/components/UserCard"
+import PromotionButton from "@/components/PromotionButton";
+
+
+
 
 const AdminPage = ({searchParams}:{searchParams:{[keys:string]:string |undefined}}) => {
 
@@ -28,6 +32,12 @@ const AdminPage = ({searchParams}:{searchParams:{[keys:string]:string |undefined
             <UserCard type="ولي أمر"/>
             
          </div>
+
+
+
+
+
+
          {/* middle chart*/}
          <div className="flex gap-4 flex-col lg:flex-row">
             {/*attendance chart */}
