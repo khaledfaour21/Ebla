@@ -1,7 +1,8 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 
+// تعريف القائمة كمصفوفة واحدة صحيحة
 const menuItems = [
   {
     title: "القائمة الرئيسية",
@@ -9,14 +10,14 @@ const menuItems = [
       {
         icon: "/home.png",
         label: "الرئيسية",
-        href: "/",
+        href: "/dashboard",
         visible: ["admin", "teacher", "student", "parent"],
       },
       {
         icon: "/teacher.png",
         label: "المدرسين",
         href: "/dashboard/list/teachers",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
       {
         icon: "/student.png",
@@ -28,7 +29,7 @@ const menuItems = [
         icon: "/parent.png",
         label: "الآباء",
         href: "/dashboard/list/parents",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
       {
         icon: "/subject.png",
@@ -40,7 +41,7 @@ const menuItems = [
         icon: "/class.png",
         label: "الشعب الدراسية",
         href: "/dashboard/list/classes",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
       {
         icon: "/lesson.png",
@@ -66,113 +67,96 @@ const menuItems = [
         href: "/dashboard/list/results",
         visible: ["admin", "teacher", "student", "parent"],
       },
-       {
-         icon: "/library.png",
-         label: "المكتبة",
-         href: "/dashboard/list/library",
-         visible: ["admin", "teacher", "student", "parent"],
-       },
+      {
+        icon: "/library.png",
+        label: "المكتبة",
+        href: "/dashboard/list/library",
+        visible: ["admin", "teacher", "student", "parent"],
+      },
       {
         icon: "/calendar.png",
         label: "الأحداث",
         href: "/dashboard/list/events",
         visible: ["admin", "teacher", "student", "parent"],
       },
-      // {
-      //   icon: "/message.png",
-      //   label: "الرسائل",
-      //   href: "/dashboard/list/messages",
-      //   visible: ["admin", "teacher", "student", "parent"],
-      // },
       {
         icon: "/announcement.png",
         label: "الإعلانات",
         href: "/dashboard/list/announcements",
         visible: ["admin", "teacher", "student", "parent"],
       },
-       {
-        icon: "/school.png",
-        label: "من نحن",
-        href: "/dashboard/list/school",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      
+      {
+          label: "من نحن",
+          href: "/dashboard/list/school", // تم تصحيح الرابط
+          icon: "/school.png",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
     ],
   },
-
   {
-  title: "عمليات النظام",
-  items: [
-    {
-      label: "عمليات نهاية العام",
-      href: "/dashboard/settings", // رابط الصفحة الجديدة
-      icon: "/promote.png", // يمكنك استخدام أيقونة مناسبة
-      visible: ["admin"], // مرئي للمدير فقط
-    },
-  ],
-}
-  // {
-  //   title: "غير ذلك",
-  //   items: [
-  //     {
-  //       icon: "/profile.png",
-  //       label: "البروفايل",
-  //       href: "/dashboard/student/list/[id]/page.tsx",
-  //       visible: [ "teacher", "student"],
-  //     },
-  //     // {
-  //     //   icon: "/setting.png",
-  //     //   label: "الإعدادات",
-  //     //   href: "/settings",
-  //     //   visible: ["admin", "teacher", "student", "parent"],
-  //     // },
-  //     // {
-  //     //   icon: "/logout.png",
-  //     //   label: "تسجيل الخروج",
-  //     //   href: "/logout",
-  //     //   visible: ["admin", "teacher", "student", "parent"],
-  //     // },
-  //   ],
-  // },
+    title: "أدوات مساعدة",
+    items: [
+        {
+          label: "المساعد الذكي",
+          href: "/dashboard/ai-helper",
+          icon: "/robot.png",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        
+    ]
+  },
+  {
+    title: "عمليات النظام",
+    items: [
+      {
+        label: "عمليات نهاية العام",
+        href: "/dashboard/settings",
+        icon: "/promote.png",
+        visible: ["admin"], // مرئي للمدير فقط
+      },
+    ],
+  },
 ];
 
+// جعل المكون async لجلب بيانات المستخدم
+const Menu = async () => {
+  // نقلنا منطق جلب الصلاحيات إلى داخل المكون
+  const { sessionClaims } = await auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role || "";
 
-const Menu =async () => {
-  const user = await currentUser()
-  const role = user?.publicMetadata.role as string
   return (
-     <div className="mt-4 text-sm rtl">
-  {menuItems.map((i) => (
-    <div className="flex flex-col gap-1.5" key={i.title}>
-      <span className="hidden lg:block text-gray-400 font-light mb-4 text-right">
-        {i.title}
-      </span>
-      {i.items.map((item) => {
-        if (item.visible.includes(role)) {
-          return (
-            <Link
-              href={item.href}
-              key={item.label}
-              // --- هذا هو السطر الذي تم تعديله ---
-              className="flex items-center justify-end gap-4 text-gray-500 p-2 rounded-md transition-all duration-200 hover:bg-SkyLight hover:text-black hover:translate-x-2"
-            >
-              <Image
-                src={item.icon}
-                alt=""
-                width={20}
-                height={20}
-                className="order-last"
-              />
-              <span className="hidden lg:block">{item.label}</span>
-            </Link>
-          );
-        }
-      })}
+    <div className="mt-4 text-sm rtl">
+      {menuItems.map((i) => (
+        <div className="flex flex-col gap-1.5 mb-4" key={i.title}>
+          <span className="hidden lg:block text-gray-400 font-light mb-2 text-right">
+            {i.title}
+          </span>
+          {i.items.map((item) => {
+            // التحقق من الصلاحية قبل عرض الرابط
+            if (item.visible.includes(role)) {
+              return (
+                <Link
+                  href={item.href}
+                  key={item.label}
+                  className="flex items-center justify-end gap-4 text-gray-500 p-2 rounded-md transition-all duration-200 hover:bg-SkyLight hover:text-black hover:translate-x-2"
+                >
+                  <Image
+                    src={item.icon}
+                    alt={item.label}
+                    width={20}
+                    height={20}
+                    className="order-last"
+                  />
+                  <span className="hidden lg:block">{item.label}</span>
+                </Link>
+              );
+            }
+            return null; // لا تعرض الرابط إذا لم يكن المستخدم مخولاً
+          })}
+        </div>
+      ))}
     </div>
-  ))}
-</div>
-  )
-}
-  
+  );
+};
 
-export default Menu
+export default Menu;

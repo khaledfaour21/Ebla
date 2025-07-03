@@ -111,3 +111,45 @@ background-color: #f7fdff !important;
 }
 
 
+@keyframes flip-in {
+  from {
+    transform: rotateX(70deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-flip-in {
+  animation: flip-in 0.5s ease-out;
+}
+
+
+
+
+
+
+
+/* Add this to the end of your globals.css file */
+
+/* 1. Animation for a moving gradient background */
+/* Animation for a slowly moving background gradient */
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animation to make content fade in and slide up */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
