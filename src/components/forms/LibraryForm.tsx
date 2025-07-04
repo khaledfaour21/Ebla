@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 // 1. استورد useRef
 import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { toast } from "react-toastify";
 import { createLibrary, updateLibrary } from "@/lib/actions";
 import InputField from "../InputField";
@@ -38,7 +38,7 @@ const LibraryForm = ({
     data?.image ? { secure_url: data.image } : null
   );
 
-  const [state, formAction] = useFormState(
+  const [state, formAction] = useActionState(
     type === "create" ? createLibrary : updateLibrary,
     {
       success: false,

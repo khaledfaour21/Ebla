@@ -55,7 +55,9 @@ const AnnouncementForm = ({
     resolver: zodResolver(announcementSchema),
     defaultValues: {
       ...data,
-      date: data?.date ? new Date(data.date).toISOString().substring(0, 16) : "",
+      date: data?.date
+        ? new Date(data.date).toISOString().substring(0, 16)
+        : "",
     },
   });
 
@@ -74,9 +76,7 @@ const AnnouncementForm = ({
     }
 
     if (result?.success) {
-      toast(
-        `الإعلان تمّ ${type === "create" ? "إضافته" : "تعديله"}!`
-      );
+      toast(`الإعلان تمّ ${type === "create" ? "إضافته" : "تعديله"}!`);
       if (setOpen) setOpen(false);
       router.refresh();
     } else {
@@ -92,9 +92,7 @@ const AnnouncementForm = ({
       noValidate
     >
       <h1 className="text-xl font-semibold">
-        {type === "create"
-          ? "إضافة إعلان جديد"
-          : "تعديل إعلان قديم"}
+        {type === "create" ? "إضافة إعلان جديد" : "تعديل إعلان قديم"}
       </h1>
 
       <div className="flex justify-between flex-wrap gap-4">
@@ -135,7 +133,7 @@ const AnnouncementForm = ({
             <option value="">اختر الصف</option>
             {classes.map((classItem) => (
               <option value={classItem.id} key={classItem.id}>
-                {classItem.name} - {classItem._count.students}/
+                {classItem.name} - {classItem?._count?.students ?? 0}/{" "}
                 {classItem.capacity} السعة
               </option>
             ))}

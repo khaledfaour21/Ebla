@@ -17,7 +17,7 @@ type SchoolClass = {
 };
 
 const eventSchema = z.object({
-    id: z.number().optional(),
+  id: z.number().optional(),
   title: z.string().min(1, { message: "Title is required!" }),
   description: z.string().min(1, { message: "Description is required!" }),
   startTime: z.string().min(1, { message: "Start time is required!" }),
@@ -28,14 +28,14 @@ const eventSchema = z.object({
     .transform((val) => (val ? Number(val) : undefined)),
 });
 
-type EventInputs = z.infer<typeof eventSchema>; 
+type EventInputs = z.infer<typeof eventSchema>;
 
 type EventFormProps = {
-    type: "create" | "update";
-    data?: Partial<EventInputs>; 
-    setOpen?: Dispatch<SetStateAction<boolean>>;
-    relatedData?: { classes: SchoolClass[] };
-  };
+  type: "create" | "update";
+  data?: Partial<EventInputs>;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
+  relatedData?: { classes: SchoolClass[] };
+};
 
 const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
   const classes: SchoolClass[] = relatedData?.classes || [];
@@ -60,11 +60,11 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
 
   const onSubmit = handleSubmit(async (formData) => {
     const payload = {
-        ...formData,
-        id: data?.id, 
-        startTime: new Date(formData.startTime),
-        endTime: new Date(formData.endTime),
-      };
+      ...formData,
+      id: data?.id,
+      startTime: new Date(formData.startTime),
+      endTime: new Date(formData.endTime),
+    };
 
     let result;
     if (type === "create") {
@@ -144,7 +144,8 @@ const EventForm = ({ type, data, setOpen, relatedData }: EventFormProps) => {
             <option value="">اختر الصف</option>
             {classes.map((classItem) => (
               <option value={classItem.id} key={classItem.id}>
-                {classItem.name} - {classItem._count.students}/{classItem.capacity} السعة
+                {classItem.name} - {classItem?._count?.students ?? 0}/
+                {classItem.capacity} السعة{" "}
               </option>
             ))}
           </select>

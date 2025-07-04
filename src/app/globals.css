@@ -153,3 +153,9 @@ background-color: #f7fdff !important;
     transform: translateY(0);
   }
 }
+
+
+/* في ملف CSS العام */
+[id^="__next-build-watcher"] {
+  display: none !important;
+}

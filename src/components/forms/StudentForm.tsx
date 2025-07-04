@@ -4,16 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-  studentSchema,
-  StudentSchema,
-} from "@/lib/formValidationSchemas";
-import { useFormState } from "react-dom";
-import {
-  createStudent,
-  updateStudent,
-} from "@/lib/actions";
+import { Dispatch, SetStateAction, useEffect} from "react";
+import { studentSchema, StudentSchema } from "@/lib/formValidationSchemas";
+import { useActionState, useState } from "react";
+import { createStudent, updateStudent } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { CldUploadWidget } from "next-cloudinary";
@@ -39,7 +33,7 @@ const StudentForm = ({
 
   const [img, setImg] = useState<any>();
 
-  const [state, formAction] = useFormState(
+  const [state, formAction] = useActionState(
     type === "create" ? createStudent : updateStudent,
     {
       success: false,
@@ -164,7 +158,7 @@ const StudentForm = ({
           error={errors.birthday}
           type="date"
         />
-        
+
         {/* --- التعديل الثاني: استبدال حقل النص بقائمة منسدلة --- */}
         <div className="flex flex-col gap-2 w-full md:w-1/4">
           <label className="text-xs text-gray-500">ولي الأمر</label>
@@ -174,11 +168,13 @@ const StudentForm = ({
             defaultValue={data?.parentId}
           >
             <option value="">اختر ولي الأمر</option>
-            {parents?.map((parent: { id: string; name: string, surname: string }) => (
-              <option value={parent.id} key={parent.id}>
-                {parent.name} {parent.surname}
-              </option>
-            ))}
+            {parents?.map(
+              (parent: { id: string; name: string; surname: string }) => (
+                <option value={parent.id} key={parent.id}>
+                  {parent.name} {parent.surname}
+                </option>
+              )
+            )}
           </select>
           {errors.parentId && (
             <p className="text-xs text-red-400">{errors.parentId.message}</p>
@@ -260,9 +256,7 @@ const StudentForm = ({
           )}
         </div>
       </div>
-      {state.error && (
-        <span className="text-red-500">حدث خطأ !</span>
-      )}
+      {state.error && <span className="text-red-500">حدث خطأ !</span>}
       <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "إضافة" : "تحديث"}
       </button>

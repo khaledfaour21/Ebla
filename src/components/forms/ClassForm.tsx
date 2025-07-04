@@ -6,16 +6,12 @@ import InputField from "../InputField";
 import {
   classSchema,
   ClassSchema,
-  subjectSchema,
-  SubjectSchema,
 } from "@/lib/formValidationSchemas";
 import {
   createClass,
-  createSubject,
   updateClass,
-  updateSubject,
 } from "@/lib/actions";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -39,9 +35,7 @@ const ClassForm = ({
     resolver: zodResolver(classSchema),
   });
 
-  // AFTER REACT 19 IT'LL BE USEACTIONSTATE
-
-  const [state, formAction] = useFormState(
+  const [state, formAction] = useActionState(
     type === "create" ? createClass : updateClass,
     {
       success: false,
@@ -64,7 +58,11 @@ const ClassForm = ({
     }
   }, [state, router, type, setOpen]);
 
-  const { teachers, grades } = relatedData;
+  // --- ✨ التعديل الرئيسي هنا ✨ ---
+  // هذا السطر يضمن أن "teachers" و "grades" تكون دائماً مصفوفة (حتى لو فارغة)
+  // مما يمنع خطأ "map of undefined"
+  const { supervisors:teachers = [], grades = [] } = relatedData || {};
+  console.log("البيانات التي وصلت إلى النموذج:", relatedData);
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
@@ -146,9 +144,7 @@ const ClassForm = ({
           )}
         </div>
       </div>
-      {state.error && (
-        <span className="text-red-500">حدث خطأ</span>
-      )}
+      {state.error && <span className="text-red-500">حدث خطأ</span>}
       <button className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "إضافة" : "تحديث"}
       </button>

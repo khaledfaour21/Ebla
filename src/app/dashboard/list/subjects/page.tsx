@@ -14,7 +14,11 @@ type SubjectList = Subject & { teachers: Teacher[] };
 const columns = [
   { header: "اسم المادة", accessor: "name" },
   { header: "العلامة العظمى", accessor: "maxMark" }, // <-- 1. تمت إضافة هذا السطر
-  { header: "مدرس المادة", accessor: "teachers", className: "hidden md:table-cell" },
+  {
+    header: "مدرس المادة",
+    accessor: "teachers",
+    className: "hidden md:table-cell",
+  },
   { header: "النشاط", accessor: "action" },
 ];
 const renderRow = (item: SubjectList) => (
